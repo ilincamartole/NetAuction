@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <form asp-action="Salut" method="post">
+        <div class="form-group">
+            <label>Cum te cheama?</label>
+            <input type="text" name="numeUtilizator" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Trimite</button>
+    </form>
+
+    @if (ViewData["MesajPersonalizat"] != null)
+    {
+        <div class="alert alert-success mt-3">
+            @ViewData["MesajPersonalizat"]
+        </div>
+    }
+    
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
