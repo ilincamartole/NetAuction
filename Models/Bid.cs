@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace WebApplication1.Models
 {
     public class Bid
@@ -7,6 +8,7 @@ namespace WebApplication1.Models
 
 
         [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal suma { get; set; }
 
         public DateTime data { get; set; }

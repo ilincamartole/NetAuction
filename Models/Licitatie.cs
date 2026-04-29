@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Models
 {
@@ -11,10 +12,11 @@ namespace WebApplication1.Models
         public String descriere;
 
 
-        [Required]
-        [Range(0.01, double.MaxValue)]
-        public decimal pret_pornire { get; set; }
-        public decimal pret_curent { get; set; }
+        [Column(TypeName = "decimal(18,2)")] // 18 cifre în total, 2 după virgulă
+        public decimal PretPornire { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal PretCurent { get; set; }
 
         public DateTime data_finalizare { get; set; }
 
