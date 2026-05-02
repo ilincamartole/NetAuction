@@ -1,24 +1,82 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
-
+    ViewData["Title"] = "Acasă";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <form asp-action="Salut" method="post">
-        <div class="form-group">
-            <label>Cum te cheama?</label>
-            <input type="text" name="numeUtilizator" class="form-control" />
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Trimite</button>
-    </form>
+<!-- Hero Section: Impact vizual imediat -->
+<div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-dark text-white rounded-4 shadow-lg"
+     style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1554034483-04fda0d3507b?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
+    <div class="col-md-8 p-lg-5 mx-auto my-5">
+        <h1 class="display-3 fw-bold italic">NetAuction</h1>
+        <p class="lead fw-normal mb-4">Descoperă obiecte unice și participă la cele mai palpitante licitații în timp real.</p>
 
-    @if (ViewData["MesajPersonalizat"] != null)
-    {
-        <div class="alert alert-success mt-3">
-            @ViewData["MesajPersonalizat"]
+        @if (ViewData["MesajPersonalizat"] != null)
+        {
+            <div class="alert alert-success d-inline-block border-0 shadow-sm px-4">
+                <i class="bi bi-check2-circle me-2"></i> @ViewData["MesajPersonalizat"]
+            </div>
+            <br />
+        }
+
+        <div class="d-flex gap-3 justify-content-center mt-3">
+            <a class="btn btn-primary btn-lg rounded-pill px-5 shadow" asp-controller="Licitatii" asp-action="Index">Explorează Licitațiile</a>
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a class="btn btn-outline-light btn-lg rounded-pill px-5" asp-area="Identity" asp-page="/Account/Register">Creează Cont</a>
+            }
         </div>
-    }
-    
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    </div>
 </div>
+
+<div class="container my-5 py-5">
+    <div class="row g-5">
+        <!-- Secțiunea Cine Suntem -->
+        <div class="col-md-6">
+            <div class="p-4 rounded-4 bg-white shadow-sm border-start border-primary border-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary text-white rounded-circle p-2 me-3">
+                        <i class="bi bi-people-fill fs-4"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0">Cine suntem?</h2>
+                </div>
+                <p class="text-muted leading-relaxed">
+                    Suntem o echipă pasionată de tehnologie și comerț echitabil, dedicată creării unui spațiu sigur și transparent pentru colecționari și entuziaști. <strong>NetAuction</strong> a început din dorința de a aduce experiența licitațiilor clasice direct pe ecranul dispozitivelor tale, eliminând barierele geografice.
+                </p>
+            </div>
+        </div>
+
+        <!-- Secțiunea Misiunea Noastră -->
+        <div class="col-md-6">
+            <div class="p-4 rounded-4 bg-white shadow-sm border-start border-success border-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success text-white rounded-circle p-2 me-3">
+                        <i class="bi bi-rocket-takeoff-fill fs-4"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0">Misiunea noastră</h2>
+                </div>
+                <p class="text-muted leading-relaxed">
+                    Misiunea noastră este să democratizăm accesul la obiecte de valoare, oferind o platformă unde fiecare utilizator are șanse egale de a câștiga. Ne angajăm să menținem cele mai înalte standarde de integritate, facilitând conexiuni de încredere între vânzători și cumpărători din întreaga lume.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secțiune scurtă de Statistici/Trust -->
+    <div class="row mt-5 pt-4 text-center">
+        <div class="col-md-4">
+            <h2 class="fw-bold text-primary">1000+</h2>
+            <p class="text-muted">Utilizatori Activi</p>
+        </div>
+        <div class="col-md-4">
+            <h2 class="fw-bold text-primary">500+</h2>
+            <p class="text-muted">Licitații Finalizate</p>
+        </div>
+        <div class="col-md-4">
+            <h2 class="fw-bold text-primary">24/7</h2>
+            <p class="text-muted">Suport Tehnic</p>
+        </div>
+    </div>
+</div>
+
+@* <footer class="text-center py-4 border-top">
+    <p class="text-muted small">Learn more about <a href="https://learn.microsoft.com/aspnet/core" class="text-decoration-none">building Web apps with ASP.NET Core</a>.</p>
+</footer> *@

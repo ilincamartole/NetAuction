@@ -1,29 +1,46 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace WebApplication1.Models
+
+
 {
+    public enum CategorieLicitatie
+    {
+        Electronice,
+        Auto,
+        Imobiliare,
+        Moda,
+        Sport,
+        Bijuterii,
+        Arta,
+        Casa,
+        Altele
+    }
     public class Licitatie
     {
         public int id { get; set; }
 
-        [Required]
-        public String titlu;
-        public String descriere;
+        [Required(ErrorMessage = "Titlul este obligatoriu.")]
+        [StringLength(100, MinimumLength = 5, ErrorMessage = "Titlul trebuie să aibă între 5 și 100 de caractere.")]
+        public string titlu { get; set; }
 
+        [Required(ErrorMessage = "Descrierea este obligatorie.")]
+        public string descriere { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")] // 18 cifre în total, 2 după virgulă
+        [Required(ErrorMessage = "Prețul este obligatoriu.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Prețul de pornire nu poate fi negativ sau zero.")]
         public decimal PretPornire { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
         public decimal PretCurent { get; set; }
 
+        [Required(ErrorMessage = "Data de finalizare este obligatorie.")]
         public DateTime data_finalizare { get; set; }
 
-        public String seller_id { get; set; }
+        public string seller_id { get; set; }
 
+        // Câmp pentru stocarea numelui imaginii în DB
+        public string? ImaginePath { get; set; }
 
-
-
+        [Required(ErrorMessage = "Selectarea unei categorii este obligatorie.")]
+        public CategorieLicitatie Categorie { get; set; }
     }
 }

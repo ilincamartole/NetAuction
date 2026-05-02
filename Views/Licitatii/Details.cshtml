@@ -1,0 +1,128 @@
+﻿@model WebApplication1.Models.Licitatie
+
+@{
+    ViewData["Title"] = "Detalii Licitație";
+}
+
+<div class="container py-5">
+    <!-- Breadcrumb & Header -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Licitații</a></li>
+            <li class="breadcrumb-item active">@Model.Categorie.ToString()</li>
+        </ol>
+    </nav>
+
+    <div class="d-md-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="fw-bold display-6 mb-1">@Model.titlu</h1>
+            <p class="text-muted">
+                <i class="bi bi-person-circle me-1"></i> Publicat de:
+                <a asp-controller="Profil" asp-action="Details" asp-route-username="@ViewBag.SellerName" class="fw-bold text-primary text-decoration-none">
+                    @ViewBag.SellerName
+                </a>
+            </p>
+        </div>
+        <span class="badge rounded-pill bg-primary px-3 py-2">@Model.Categorie.ToString()</span>
+    </div>
+
+    <div class="row g-4">
+        <!-- Partea Stângă: Imaginea -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm overflow-hidden rounded-4">
+                <div class="bg-dark d-flex align-items-center justify-content-center" style="min-height: 500px;">
+                    @if (!string.IsNullOrEmpty(Model.ImaginePath))
+                    {
+                        <img src="~/images/@Model.ImaginePath"
+                             class="img-fluid"
+                             alt="@Model.titlu"
+                             style="max-height: 600px; width: auto; object-fit: contain;" />
+                    }
+                    else
+                    {
+                        <div class="text-white-50 text-center">
+                            <i class="bi bi-image" style="font-size: 5rem;"></i>
+                            <p class="mt-2">Imagine indisponibilă</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Descriere sub imagine -->
+            <div class="card border-0 shadow-sm rounded-4 mt-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Descriere Produs</h5>
+                    <p class="text-secondary leading-relaxed" style="white-space: pre-line;">@Model.descriere</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partea Dreaptă: Panou Licitare -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 sticky-top" style="top: 2rem;">
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <small class="text-muted d-block mb-1">Preț Actual</small>
+                        <h2 class="text-success fw-bold display-5 mb-0">@Model.PretCurent <small class="fs-4">RON</small></h2>
+                        <div class="text-muted small mt-1">Preț pornire: @Model.PretPornire RON</div>
+                    </div>
+
+                    <div class="alert alert-danger-subtle border-danger-subtle d-flex align-items-center mb-4 rounded-3">
+                        <i class="bi bi-clock-history me-2 fs-4 text-danger"></i>
+                        <div>
+                            <small class="d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Timp Rămas</small>
+                            <span class="fw-bold text-danger">@Model.data_finalizare.ToString("dd MMM yyyy, HH:mm")</span>
+                        </div>
+                    </div>
+
+                    @* Formular Licitare *@
+                    <div class="p-3 bg-light rounded-4 border border-2 border-dashed">
+                        <label class="form-label fw-bold mb-3">Plasează o ofertă</label>
+                        <form asp-action="Licitare" method="post">
+                            <input type="hidden" name="id" value="@Model.id" />
+                            <div class="input-group input-group-lg mb-3">
+                                <span class="input-group-text bg-white border-end-0 text-muted">RON</span>
+                                <input type="number" name="sumaLicitata"
+                                       class="form-control border-start-0 ps-0 fw-bold"
+                                       placeholder="@(Model.PretCurent + 1)"
+                                       min="@(Model.PretCurent + 0.01m)" step="0.01" required />
+                            </div>
+                            <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold py-3 shadow">
+                                <i class="bi bi-hammer me-2"></i>Licitează Acum
+                            </button>
+                        </form>
+                        <small class="text-muted d-block text-center mt-3">
+                            <i class="bi bi-shield-check me-1"></i> Tranzacție securizată
+                        </small>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-link text-decoration-none text-muted p-0">
+                                <i class="bi bi-arrow-left me-1"></i>Înapoi la listă
+                            </a>
+                            <button class="btn btn-link text-decoration-none text-muted p-0">
+                                <i class="bi bi-share me-1"></i>Distribuie
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .alert-danger-subtle {
+        background-color: #fff5f5;
+        border: 1px solid #feb2b2;
+    }
+
+    .border-dashed {
+        border-style: dashed !important;
+    }
+
+    .leading-relaxed {
+        line-height: 1.6;
+    }
+</style>
