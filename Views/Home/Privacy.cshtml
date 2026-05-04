@@ -1,6 +1,98 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Politica de Confidențialitate";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+
+            <!-- Header Politică -->
+            <div class="text-center mb-5 animate__animated animate__fadeIn">
+                <div class="bg-primary-subtle d-inline-block p-3 rounded-circle mb-3">
+                    <i class="bi bi-shield-check text-primary fs-1"></i>
+                </div>
+                <h1 class="display-4 fw-black text-dark">Confidențialitatea Ta</h1>
+                <p class="lead text-muted">Transparența este fundamentul încrederii în licitațiile NetAuction.</p>
+                <div class="d-flex justify-content-center gap-2 mt-4">
+                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2">Versiunea 2.1</span>
+                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2">Actualizat: Mai 2026</span>
+                </div>
+            </div>
+
+            <!-- Content Card -->
+            <div class="card border-0 shadow-lg rounded-5 overflow-hidden animate__animated animate__fadeInUp">
+                <div class="card-body p-4 p-md-5 bg-white">
+
+                    <section class="mb-5">
+                        <h4 class="fw-bold text-primary mb-3 d-flex align-items-center">
+                            <i class="bi bi-collection-fill me-2"></i> 1. Colectarea Datelor
+                        </h4>
+                        <p class="text-secondary leading-relaxed">
+                            Pentru a asigura un mediu de licitare sigur, colectăm informații esențiale precum numele, adresa de email și istoricul licitațiilor tale. Aceste date ne permit să validăm ofertele și să prevenim fraudele în cadrul platformei.
+                        </p>
+                    </section>
+
+                    <section class="mb-5 p-4 bg-light rounded-4 border-start border-primary border-4">
+                        <h4 class="fw-bold text-dark mb-3">
+                            <i class="bi bi-lock-fill me-2"></i> 2. Securitatea Informațiilor
+                        </h4>
+                        <p class="text-secondary leading-relaxed mb-0">
+                            Toate tranzacțiile și datele de profil sunt criptate folosind protocoale SSL de ultimă generație. Nu stocăm parolele tale în format text, ci folosim algoritmi avansați de hashing prin framework-ul ASP.NET Core Identity.
+                        </p>
+                    </section>
+
+                    <section class="mb-5">
+                        <h4 class="fw-bold text-primary mb-3 d-flex align-items-center">
+                            <i class="bi bi-eye-slash-fill me-2"></i> 3. Partajarea cu Terți
+                        </h4>
+                        <p class="text-secondary leading-relaxed">
+                            NetAuction <strong>nu vinde</strong> și nu închiriază datele tale personale către companii de marketing. Partajăm informații doar cu partenerii de procesare a plăților (dacă este cazul) și exclusiv în scopul finalizării licitațiilor la care ai participat.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h4 class="fw-bold text-primary mb-3 d-flex align-items-center">
+                            <i class="bi bi-person-check-fill me-2"></i> 4. Drepturile Tale
+                        </h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-transparent px-0 py-3">
+                                <i class="bi bi-check2-circle text-success me-2"></i> Dreptul de a solicita ștergerea definitivă a contului.
+                            </li>
+                            <li class="list-group-item bg-transparent px-0 py-3">
+                                <i class="bi bi-check2-circle text-success me-2"></i> Dreptul de a exporta datele tale într-un format portabil.
+                            </li>
+                            <li class="list-group-item bg-transparent px-0 py-3">
+                                <i class="bi bi-check2-circle text-success me-2"></i> Dreptul de a corecta orice informație eronată din profil.
+                            </li>
+                        </ul>
+                    </section>
+
+                </div>
+                <div class="card-footer bg-dark text-white text-center py-4">
+                    <p class="mb-0 small opacity-75">Ai întrebări despre datele tale? Contactează ofițerul nostru DPO la privacy@netauction.ro</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-2"></i>Înapoi la Acasă
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-black {
+        font-weight: 900;
+    }
+
+    .leading-relaxed {
+        line-height: 1.8;
+    }
+
+    .bg-primary-subtle {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+</style>

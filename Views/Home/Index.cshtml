@@ -2,81 +2,195 @@
     ViewData["Title"] = "Acasă";
 }
 
-<!-- Hero Section: Impact vizual imediat -->
-<div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-dark text-white rounded-4 shadow-lg"
-     style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1554034483-04fda0d3507b?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
-    <div class="col-md-8 p-lg-5 mx-auto my-5">
-        <h1 class="display-3 fw-bold italic">NetAuction</h1>
-        <p class="lead fw-normal mb-4">Descoperă obiecte unice și participă la cele mai palpitante licitații în timp real.</p>
+<!-- Hero Section: Premium Experience -->
+<div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center rounded-5 shadow-2-strong"
+     style="background: linear-gradient(45deg, rgba(13, 110, 253, 0.8), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1554034483-04fda0d3507b?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center; min-height: 70vh; display: flex; align-items: center;">
+
+    <div class="col-md-8 p-lg-5 mx-auto my-5 animate__animated animate__fadeIn">
+        <div class="mb-4">
+            <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm animate__animated animate__bounceInDelay">NOU: LICITAȚII LIVE 24/7</span>
+        </div>
+        <h1 class="display-2 fw-bolder text-white mb-3 tracking-tight" style="text-shadow: 2px 4px 10px rgba(0,0,0,0.3);">
+            Net<span class="text-warning">Auction</span>
+        </h1>
+        <p class="fs-4 text-white-50 mb-5 fw-light mx-auto" style="max-width: 600px;">
+            Descoperă rarități, licitează cu pasiune și câștigă obiecte unice într-o experiență digitală de elită.
+        </p>
 
         @if (ViewData["MesajPersonalizat"] != null)
         {
-            <div class="alert alert-success d-inline-block border-0 shadow-sm px-4">
-                <i class="bi bi-check2-circle me-2"></i> @ViewData["MesajPersonalizat"]
+            <div class="glass-effect d-inline-flex align-items-center border border-white border-opacity-25 shadow-lg px-4 py-2 rounded-pill mb-4">
+                <span class="pulse-green me-2"></span>
+                <span class="text-white fw-medium">@ViewData["MesajPersonalizat"]</span>
             </div>
             <br />
         }
 
-        <div class="d-flex gap-3 justify-content-center mt-3">
-            <a class="btn btn-primary btn-lg rounded-pill px-5 shadow" asp-controller="Licitatii" asp-action="Index">Explorează Licitațiile</a>
+        <div class="d-flex gap-3 justify-content-center mt-2">
+            <a class="btn btn-warning btn-lg rounded-pill px-5 py-3 fw-bold shadow-lg hover-up" asp-controller="Licitatii" asp-action="Index">
+                <i class="bi bi-hammer me-2"></i>Explorează Acum
+            </a>
             @if (!User.Identity.IsAuthenticated)
             {
-                <a class="btn btn-outline-light btn-lg rounded-pill px-5" asp-area="Identity" asp-page="/Account/Register">Creează Cont</a>
+                <a class="btn btn-outline-light btn-lg rounded-pill px-5 py-3 glass-btn" asp-area="Identity" asp-page="/Account/Register">
+                    Alătură-te Comunității
+                </a>
             }
         </div>
     </div>
 </div>
 
 <div class="container my-5 py-5">
-    <div class="row g-5">
-        <!-- Secțiunea Cine Suntem -->
-        <div class="col-md-6">
-            <div class="p-4 rounded-4 bg-white shadow-sm border-start border-primary border-4 h-100">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-primary text-white rounded-circle p-2 me-3">
-                        <i class="bi bi-people-fill fs-4"></i>
+    <div class="row g-4 align-items-stretch">
+        <!-- Secțiunea Cine Suntem - Design Modern -->
+        <div class="col-md-6 animate__animated animate__fadeInLeft">
+            <div class="card h-100 border-0 shadow-lg rounded-5 overflow-hidden info-card">
+                <div class="card-body p-5">
+                    <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-white bg-primary bg-gradient rounded-4 mb-4 shadow">
+                        <i class="bi bi-people-fill fs-3"></i>
                     </div>
-                    <h2 class="fw-bold mb-0">Cine suntem?</h2>
+                    <h2 class="fw-bolder mb-3 text-dark">Arhitecții Transparenței</h2>
+                    <p class="text-secondary leading-relaxed fs-5">
+                        Suntem o echipă de vizionari dedicată creării unui spațiu unde încrederea întâlnește tehnologia. <strong>NetAuction</strong> nu este doar o platformă, este un standard de integritate pentru colecționarii moderni.
+                    </p>
+                    <div class="mt-4">
+                        <span class="text-primary fw-bold">#Comunitate #Siguranță #Pasiune</span>
+                    </div>
                 </div>
-                <p class="text-muted leading-relaxed">
-                    Suntem o echipă pasionată de tehnologie și comerț echitabil, dedicată creării unui spațiu sigur și transparent pentru colecționari și entuziaști. <strong>NetAuction</strong> a început din dorința de a aduce experiența licitațiilor clasice direct pe ecranul dispozitivelor tale, eliminând barierele geografice.
-                </p>
             </div>
         </div>
 
-        <!-- Secțiunea Misiunea Noastră -->
-        <div class="col-md-6">
-            <div class="p-4 rounded-4 bg-white shadow-sm border-start border-success border-4 h-100">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-success text-white rounded-circle p-2 me-3">
-                        <i class="bi bi-rocket-takeoff-fill fs-4"></i>
+        <!-- Secțiunea Misiunea Noastră - Design Modern -->
+        <div class="col-md-6 animate__animated animate__fadeInRight">
+            <div class="card h-100 border-0 shadow-lg rounded-5 overflow-hidden info-card dark-card text-white" style="background: #1a1d20;">
+                <div class="card-body p-5">
+                    <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-dark bg-warning bg-gradient rounded-4 mb-4 shadow">
+                        <i class="bi bi-rocket-takeoff-fill fs-3"></i>
                     </div>
-                    <h2 class="fw-bold mb-0">Misiunea noastră</h2>
+                    <h2 class="fw-bolder mb-3">Viziunea Noastră</h2>
+                    <p class="text-white-50 leading-relaxed fs-5">
+                        Misiunea noastră este să democratizăm accesul la obiecte de valoare. Eliminăm barierele geografice și oferim șanse egale fiecărui entuziast, transformând fiecare licitație într-o poveste de succes.
+                    </p>
+                    <hr class="my-4 opacity-25">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-shield-check text-warning me-2 fs-4"></i>
+                        <span class="small text-uppercase tracking-widest">Integritate Garantată 100%</span>
+                    </div>
                 </div>
-                <p class="text-muted leading-relaxed">
-                    Misiunea noastră este să democratizăm accesul la obiecte de valoare, oferind o platformă unde fiecare utilizator are șanse egale de a câștiga. Ne angajăm să menținem cele mai înalte standarde de integritate, facilitând conexiuni de încredere între vânzători și cumpărători din întreaga lume.
-                </p>
             </div>
         </div>
     </div>
 
-    <!-- Secțiune scurtă de Statistici/Trust -->
-    <div class="row mt-5 pt-4 text-center">
-        <div class="col-md-4">
-            <h2 class="fw-bold text-primary">1000+</h2>
-            <p class="text-muted">Utilizatori Activi</p>
+    <!-- Stats Section: High Contrast -->
+    <div class="row mt-5 pt-5 text-center g-4 animate__animated animate__fadeInUp">
+        <div class="col-6 col-md-4">
+            <div class="stat-item p-4 rounded-4 shadow-sm bg-white border-bottom border-primary border-4">
+                <h2 class="display-5 fw-bolder text-primary mb-0">1.2k</h2>
+                <p class="text-muted text-uppercase small fw-bold tracking-wider">Membri Elită</p>
+            </div>
         </div>
-        <div class="col-md-4">
-            <h2 class="fw-bold text-primary">500+</h2>
-            <p class="text-muted">Licitații Finalizate</p>
+        <div class="col-6 col-md-4">
+            <div class="stat-item p-4 rounded-4 shadow-sm bg-white border-bottom border-warning border-4">
+                <h2 class="display-5 fw-bolder text-warning mb-0">850+</h2>
+                <p class="text-muted text-uppercase small fw-bold tracking-wider">Succese Finale</p>
+            </div>
         </div>
-        <div class="col-md-4">
-            <h2 class="fw-bold text-primary">24/7</h2>
-            <p class="text-muted">Suport Tehnic</p>
+        <div class="col-12 col-md-4">
+            <div class="stat-item p-4 rounded-4 shadow-sm bg-white border-bottom border-success border-4">
+                <h2 class="display-5 fw-bolder text-success mb-0">99.9%</h2>
+                <p class="text-muted text-uppercase small fw-bold tracking-wider">Uptime Platformă</p>
+            </div>
         </div>
     </div>
 </div>
 
-@* <footer class="text-center py-4 border-top">
-    <p class="text-muted small">Learn more about <a href="https://learn.microsoft.com/aspnet/core" class="text-decoration-none">building Web apps with ASP.NET Core</a>.</p>
-</footer> *@
+<style>
+    /* Premium UI Tokens */
+    :root {
+        --jakarta: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .tracking-tight {
+        letter-spacing: -2px;
+    }
+
+    .tracking-wider {
+        letter-spacing: 1px;
+    }
+
+    .leading-relaxed {
+        line-height: 1.7;
+    }
+
+    /* Glassmorphism Effect */
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .glass-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Hover Animations */
+    .hover-up {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .hover-up:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
+        }
+
+    .info-card {
+        transition: transform 0.4s ease;
+    }
+
+        .info-card:hover {
+            transform: scale(1.02);
+        }
+
+    .feature-icon-small {
+        width: 60px;
+        height: 60px;
+    }
+
+    /* Pulse for live indicators */
+    .pulse-green {
+        width: 10px;
+        height: 10px;
+        background: #28a745;
+        border-radius: 50%;
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+        }
+
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        }
+    }
+
+    /* Bento Grid Spacing */
+    .stat-item {
+        transition: all 0.3s ease;
+    }
+
+        .stat-item:hover {
+            background: #f8f9fa;
+            transform: translateY(-10px);
+        }
+</style>

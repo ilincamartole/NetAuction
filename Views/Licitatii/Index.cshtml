@@ -2,144 +2,159 @@
 @using System.Security.Claims
 
 @{
-    ViewData["Title"] = "Explorați Licitațiile";
+    ViewData["Title"] = "Marketplace de Elită";
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
-<div class="container py-4">
-    <!-- Header Secțiune -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <div>
-            <h1 class="fw-bold display-5 mb-1">Licitații Active</h1>
-            <p class="text-muted">Găsește obiecte unice și licitează în timp real.</p>
+<div class="container-fluid py-5 px-lg-5" style="background: #f8f9fa;">
+    <!-- Header Hero Section -->
+    <div class="row align-items-center mb-5 animate__animated animate__fadeIn">
+        <div class="col-lg-7">
+            <h1 class="display-4 fw-bolder text-dark tracking-tight mb-2">
+                Descoperă <span class="text-primary text-gradient">Comori</span> Digitale
+            </h1>
+            <p class="fs-5 text-muted fw-light">Licitează în timp real pentru cele mai rare obiecte din comunitatea NetAuction.</p>
         </div>
-
-        @if (User.Identity.IsAuthenticated)
-        {
-            <a asp-action="Create" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
-                <i class="bi bi-plus-circle me-2"></i>Adaugă Licitație
-            </a>
-        }
+        <div class="col-lg-5 text-lg-end">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a asp-action="Create" class="btn btn-primary btn-lg rounded-pill px-5 py-3 shadow-lg hover-lift">
+                    <i class="bi bi-plus-lg me-2"></i>Lansează o Licitație
+                </a>
+            }
+        </div>
     </div>
 
-    <!-- Filtre și Navigare -->
-    <div class="card border-0 shadow-sm rounded-4 mb-5">
+    <!-- Smart Filter Bar: Glassmorphism Design -->
+    <div class="card border-0 shadow-sm rounded-5 mb-5 glass-filter animate__animated animate__fadeInUp">
         <div class="card-body p-4">
-            <!-- Tab-uri pentru filtrare rapidă -->
-            <ul class="nav nav-pills mb-4 border-bottom pb-3">
-                <li class="nav-item">
-                    <a class="nav-link rounded-pill @(Context.Request.Query["filter"] != "mine" ? "active" : "")"
-                       asp-action="Index" asp-route-filter="all">
-                        <i class="bi bi-grid-fill me-2"></i>Toate Licitațiile
-                    </a>
-                </li>
-                @if (User.Identity.IsAuthenticated)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link rounded-pill @(Context.Request.Query["filter"] == "mine" ? "active" : "")"
-                           asp-action="Index" asp-route-filter="mine">
-                            <i class="bi bi-person-badge me-2"></i>Licitațiile Mele
-                        </a>
-                    </li>
-                }
-            </ul>
-
-            <!-- Formular Filtrare Detaliată -->
             <form asp-action="Index" method="get" class="row g-3 align-items-end">
+                <!-- Toggle Filters -->
+                <div class="col-12 mb-2">
+                    <div class="d-flex gap-2 p-1 bg-light rounded-pill d-inline-flex border">
+                        <a class="btn rounded-pill px-4 py-2 @(Context.Request.Query["filter"] != "mine" ? "btn-white shadow-sm" : "btn-light text-muted")"
+                           asp-action="Index" asp-route-filter="all">Toate</a>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a class="btn rounded-pill px-4 py-2 @(Context.Request.Query["filter"] == "mine" ? "btn-white shadow-sm" : "btn-light text-muted")"
+                               asp-action="Index" asp-route-filter="mine">Ale Mele</a>
+                        }
+                    </div>
+                </div>
+
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold text-uppercase text-muted">Caută titlu</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" name="searchString" class="form-control border-start-0 ps-0 shadow-none"
-                               placeholder="Ex: Ceas vechi..." value="@Context.Request.Query["searchString"]" />
+                    <div class="form-floating">
+                        <input type="text" name="searchString" class="form-control border-0 bg-light rounded-4 px-4"
+                               id="searchLabel" placeholder="Căutare..." value="@Context.Request.Query["searchString"]">
+                        <label for="searchLabel" class="ps-4">Ce cauți astăzi?</label>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label small fw-bold text-uppercase text-muted">Categorie</label>
-                    <select name="categorie" class="form-select shadow-none"
-                            asp-items="Html.GetEnumSelectList<WebApplication1.Models.CategorieLicitatie>()">
-                        <option value="">Toate categoriile</option>
-                    </select>
+                    <div class="form-floating">
+                        <select name="categorie" class="form-select border-0 bg-light rounded-4 px-4" id="catLabel"
+                                asp-items="Html.GetEnumSelectList<WebApplication1.Models.CategorieLicitatie>()">
+                            <option value="">Toate categoriile</option>
+                        </select>
+                        <label for="catLabel" class="ps-4">Categorie</label>
+                    </div>
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold text-uppercase text-muted">Preț Max (RON)</label>
-                    <input type="number" name="pretMax" class="form-control shadow-none"
-                           placeholder="500" value="@Context.Request.Query["pretMax"]" />
+                    <div class="form-floating">
+                        <input type="number" name="pretMax" class="form-control border-0 bg-light rounded-4 px-4"
+                               id="priceLabel" placeholder="Buget" value="@Context.Request.Query["pretMax"]">
+                        <label for="priceLabel" class="ps-4">Buget Max (RON)</label>
+                    </div>
                 </div>
 
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-dark w-100 rounded-3">
-                        <i class="bi bi-funnel me-1"></i> Filtrează
+                <div class="col-md-3 d-flex gap-2 py-1">
+                    <button type="submit" class="btn btn-dark flex-grow-1 rounded-4 py-3 fw-bold transition-all">
+                        <i class="bi bi-search me-2"></i>Caută
                     </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary w-50 rounded-3">
-                        <i class="bi bi-arrow-counterclockwise"></i>
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-4 py-3 px-3">
+                        <i class="bi bi-arrow-counterclockwise fs-5"></i>
                     </a>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Grid de Licitații (Înlocuiește tabelul) -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+    <!-- Results Grid -->
+    <div class="row g-4 animate__animated animate__fadeInUp animate__delay-1s">
         @if (!Model.Any())
         {
             <div class="col-12 text-center py-5">
-                <i class="bi bi-search text-muted display-1"></i>
-                <p class="mt-3 fs-5 text-muted">Nu am găsit nicio licitație care să corespundă criteriilor.</p>
+                <div class="bg-white d-inline-block p-5 rounded-5 shadow-sm">
+                    <i class="bi bi-emoji-frown text-muted display-1"></i>
+                    <h3 class="mt-4 fw-bold">Niciun rezultat găsit</h3>
+                    <p class="text-muted">Încearcă să schimbi filtrele sau caută cuvinte mai generale.</p>
+                </div>
             </div>
         }
 
         @foreach (var item in Model)
         {
-            <div class="col">
-                <div class="card h-100 border-0 shadow-sm hover-card transition-all rounded-4 overflow-hidden">
-                    <!-- Badge pentru Categorie -->
-                    <span class="position-absolute top-0 start-0 m-3 badge bg-dark opacity-75 rounded-pill px-3">
-                        @item.Categorie
-                    </span>
-
-                    <!-- Imagine Produs -->
-                    <div class="card-img-container bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+            <div class="col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm bento-card rounded-5 overflow-hidden transition-all">
+                    <!-- Image Wrapper with Overlay -->
+                    <div class="position-relative overflow-hidden group" style="height: 240px;">
                         @if (!string.IsNullOrEmpty(item.ImaginePath))
                         {
-                            <img src="~/images/@item.ImaginePath" class="card-img-top h-100 w-100 object-fit-cover" alt="@item.titlu">
+                            <img src="~/images/@item.ImaginePath" class="w-100 h-100 object-fit-cover transition-transform" alt="@item.titlu">
                         }
                         else
                         {
-                            <i class="bi bi-image text-muted display-4"></i>
+                            <div class="w-100 h-100 bg-light-subtle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-image text-muted display-4"></i>
+                            </div>
+                        }
+
+                        <!-- Floating Category -->
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge glass-badge rounded-pill px-3 py-2 text-white fw-bold">
+                                @item.Categorie
+                            </span>
+                        </div>
+
+                        <!-- Status Indicator -->
+                        @if (item.data_finalizare < DateTime.Now.AddHours(2) && !item.EsteIncheiata)
+                        {
+                            <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-danger text-white text-center small fw-bold animate__animated animate__pulse animate__infinite">
+                                <i class="bi bi-clock-history me-1"></i> EXPIRĂ CURÂND
+                            </div>
                         }
                     </div>
 
-                    <div class="card-body p-3">
-                        <h6 class="card-title fw-bold text-dark mb-1 text-truncate">@item.titlu</h6>
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold text-dark mb-3 text-truncate-2" style="height: 3rem;">@item.titlu</h5>
 
-                        <div class="d-flex justify-content-between align-items-end mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
-                                <small class="text-muted d-block small text-uppercase" style="font-size: 0.65rem;">Preț Curent</small>
-                                <span class="fw-bold text-success fs-5">@item.PretCurent RON</span>
+                                <p class="text-muted small text-uppercase fw-bold mb-0" style="font-size: 0.65rem; letter-spacing: 1px;">Preț Actual</p>
+                                <span class="fs-4 fw-bolder text-success">@item.PretCurent <small class="fs-6">RON</small></span>
                             </div>
                             <div class="text-end">
-                                <small class="text-muted d-block small text-uppercase" style="font-size: 0.65rem;">Expiră la</small>
-                                <span class="small fw-bold @(item.data_finalizare < DateTime.Now.AddDays(1) ? "text-danger" : "text-dark")">
-                                    @item.data_finalizare.ToString("dd.MM HH:mm")
-                                </span>
+                                <p class="text-muted small text-uppercase fw-bold mb-0" style="font-size: 0.65rem; letter-spacing: 1px;">Data Limită</p>
+                                <span class="fw-bold text-dark">@item.data_finalizare.ToString("dd MMM")</span>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="card-footer bg-white border-0 p-3 pt-0 d-flex gap-2">
-                        <a asp-action="Details" asp-route-id="@item.id" class="btn btn-outline-primary btn-sm flex-grow-1 rounded-pill fw-bold">
-                            Vezi Detalii
-                        </a>
-
-                        @if (User.Identity.IsAuthenticated && item.seller_id == currentUserId)
-                        {
-                            <a asp-action="Delete" asp-route-id="@item.id" class="btn btn-outline-danger btn-sm rounded-circle shadow-none" title="Șterge">
-                                <i class="bi bi-trash"></i>
+                        <div class="d-flex gap-2">
+                            <a asp-action="Details" asp-route-id="@item.id" class="btn btn-primary flex-grow-1 rounded-pill py-2 fw-bold shadow-sm">
+                                Licitează <i class="bi bi-arrow-right-short ms-1"></i>
                             </a>
-                        }
+
+                            @if (User.Identity.IsAuthenticated && item.seller_id == currentUserId)
+                            {
+                                <form asp-action="Delete" asp-route-id="@item.id" method="post" onsubmit="return confirm('Sigur ștergi?');">
+                                    <button type="submit" class="btn btn-outline-danger rounded-circle p-2 px-3 border-0 bg-light">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -148,30 +163,73 @@
 </div>
 
 <style>
-    /* Efecte Vizuale */
-    .hover-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* Premium UI Styling */
+    .text-gradient {
+        background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-        .hover-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 1rem 2rem rgba(0,0,0,0.12) !important;
+    .rounded-5 {
+        border-radius: 1.5rem !important;
+    }
+
+    .tracking-tight {
+        letter-spacing: -1.5px;
+    }
+
+    .glass-filter {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-white {
+        background: white;
+        color: #0d6efd;
+    }
+
+    .bento-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .bento-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 1.5rem 3rem rgba(0,0,0,0.1) !important;
         }
 
-    .object-fit-cover {
-        object-fit: cover;
+            .bento-card:hover img {
+                transform: scale(1.1);
+            }
+
+    .glass-badge {
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
     }
 
-    .nav-pills .nav-link {
-        color: #6c757d;
-        font-weight: 500;
+    .hover-lift:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(13, 110, 253, 0.3) !important;
     }
 
-        .nav-pills .nav-link.active {
-            background-color: #0d6efd;
-        }
-
-    .card-img-container {
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+
+    .bg-light-subtle {
+        background-color: #f1f3f5;
+    }
+
+    /* Transitions */
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+
+    .transition-transform {
+        transition: transform 0.5s ease;
     }
 </style>

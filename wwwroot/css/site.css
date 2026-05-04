@@ -1,22 +1,143 @@
+﻿/* --- SISTEM DE DESIGN PREMIUM --- */
+:root {
+    --primary-color: #0d6efd;
+    --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+    --accent-color: #f59e0b;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    --hover-shadow: 0 20px 40px -10px rgba(13, 110, 253, 0.15);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- RESET & TIPOGRAFIE --- */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    scroll-behavior: smooth;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1a202c;
+    background-color: #f8fafc;
+    margin-bottom: 80px; /* Spațiu pentru footer-ul rachetă */
+    -webkit-font-smoothing: antialiased;
 }
+
+/* --- COMPONENTE "RACHETĂ" --- */
+
+/* Focus stilizat (Neon Glow) */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
+.form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 4px rgba(37, 140, 251, 0.15);
+    border-color: var(--primary-color) !important;
+}
+
+/* Butoane cu efect de ridicare */
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    transition: var(--transition-smooth);
+    letter-spacing: -0.2px;
+}
+
+    .btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 25px rgba(13, 110, 253, 0.3);
+    }
+
+/* Carduri Bento Style */
+.card-premium {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 1.5rem;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+}
+
+    .card-premium:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+    }
+
+/* Formulare de revistă */
+.form-control {
+    border-radius: 0.8rem;
+    padding: 0.75rem 1.25rem;
+    background-color: #f1f5f9;
+    border: 2px solid transparent;
+    transition: var(--transition-smooth);
+}
+
+    .form-control:focus {
+        background-color: white;
+        border-color: var(--primary-color);
+    }
+
+/* --- UTILITĂȚI VIZUALE --- */
+
+/* Text Gradient */
+.text-gradient {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Glassmorphism Effect */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Selecție Text Personalizată */
+::selection {
+    background: rgba(13, 110, 253, 0.15);
+    color: var(--primary-color);
+}
+
+/* --- ANIMAȚII --- */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.animate-float {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Scrollbar Modern */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+    transition: var(--transition-smooth);
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+    }

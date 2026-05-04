@@ -6,162 +6,172 @@
     var licitatii = ViewBag.LicitatiiUser as List<WebApplication1.Models.Licitatie>;
 }
 
-<div class="container py-5">
-    <div class="row g-4">
-        <!-- Coloana Stângă: Card Profil -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-4 sticky-top" style="top: 2rem;">
-                <div class="position-relative d-inline-block mx-auto mb-3">
-                    @if (!string.IsNullOrEmpty(Model.ProfilePicture))
-                    {
-                        <img src="~/uploads/@Model.ProfilePicture" alt="Avatar" class="rounded-circle shadow-sm"
-                             style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff;">
-                    }
-                    else
-                    {
-                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto shadow-sm"
-                             style="width: 150px; height: 150px; border: 4px solid #fff;">
-                            <i class="bi bi-person text-secondary" style="font-size: 5rem;"></i>
+<div class="container-fluid py-5 px-lg-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); min-height: 100vh;">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Coloana Stângă: Identity Card -->
+            <div class="col-lg-4 animate__animated animate__fadeInLeft">
+                <div class="card border-0 shadow-lg rounded-5 text-center p-4 sticky-top overflow-hidden bg-white" style="top: 2rem; z-index: 10;">
+                    <!-- Background Decorativ subtil -->
+                    <div class="position-absolute top-0 start-0 w-100" style="height: 100px; background: linear-gradient(45deg, #0d6efd, #0dcaf0); opacity: 0.1;"></div>
+
+                    <div class="position-relative d-inline-block mx-auto mb-4 mt-3">
+                        <div class="avatar-container shadow-lg rounded-circle p-1 bg-white">
+                            @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                            {
+                                <img src="~/uploads/@Model.ProfilePicture" alt="Avatar" class="rounded-circle"
+                                     style="width: 160px; height: 160px; object-fit: cover; border: 4px solid #fff;">
+                            }
+                            else
+                            {
+                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto"
+                                     style="width: 160px; height: 160px; border: 4px solid #fff;">
+                                    <i class="bi bi-person text-primary-emphasis" style="font-size: 5rem;"></i>
+                                </div>
+                            }
                         </div>
-                    }
+
+                        @if (ViewBag.EsteProfilPropriu == true)
+                        {
+                            <button class="position-absolute bottom-0 end-0 btn btn-primary rounded-circle shadow p-2 border-3 border-white"
+                                    onclick="document.getElementById('fileInput').click();" title="Schimbă poza">
+                                <i class="bi bi-camera-fill fs-5"></i>
+                            </button>
+                        }
+                    </div>
+
+                    <h2 class="fw-extrabold mb-1 text-dark tracking-tight">@Model.prenume @Model.nume</h2>
+                    <p class="text-muted fw-medium mb-4">@Model.Email</p>
 
                     @if (ViewBag.EsteProfilPropriu == true)
                     {
-                        <span class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow-sm"
-                              style="cursor: pointer;" onclick="document.getElementById('fileInput').click();">
-                            <i class="bi bi-camera-fill"></i>
-                        </span>
+                        <form asp-action="IncarcaPoza" asp-controller="Profil" method="post" enctype="multipart/form-data" class="d-none">
+                            <input type="file" id="fileInput" name="pozaFile" accept="image/*" onchange="this.form.submit()" />
+                        </form>
+
+                        <div class="d-grid gap-2 px-3">
+                            <a href="/Identity/Account/Manage" class="btn btn-dark rounded-pill py-3 fw-bold shadow-sm hover-up">
+                                <i class="bi bi-sliders2-vertical me-2"></i>Configurare Profil
+                            </a>
+                        </div>
                     }
-                </div>
 
-                <h3 class="fw-bold mb-0 text-capitalize">@Model.prenume @Model.nume</h3>
-                <p class="text-muted mb-4">@Model.Email</p>
-
-                @if (ViewBag.EsteProfilPropriu == true)
-                {
-                    <form asp-action="IncarcaPoza" asp-controller="Profil" method="post" enctype="multipart/form-data" class="d-none">
-                        <input type="file" id="fileInput" name="pozaFile" accept="image/*" onchange="this.form.submit()" />
-                    </form>
-
-                    <div class="d-grid gap-2">
-                        <a href="/Identity/Account/Manage" class="btn btn-primary rounded-pill shadow-sm">
-                            <i class="bi bi-gear-fill me-2"></i>Setări Cont
-                        </a>
-                    </div>
-                }
-
-                <hr class="my-4 opacity-50">
-
-                <div class="row text-center">
-                    <div class="col-6 border-end">
-                        <div class="fw-bold fs-5">@(licitatii?.Count ?? 0)</div>
-                        <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Postări</small>
-                    </div>
-                    <div class="col-6">
-                        <div class="fw-bold fs-5">@(Model.ReviewsPrimite?.Count ?? 0)</div>
-                        <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Review-uri</small>
+                    <div class="row mt-5 g-0 rounded-4 overflow-hidden border">
+                        <div class="col-6 bg-light py-3 border-end">
+                            <h4 class="fw-bolder mb-0 text-primary">@(licitatii?.Count ?? 0)</h4>
+                            <span class="text-uppercase small fw-bold text-muted" style="letter-spacing: 1px;">Postări</span>
+                        </div>
+                        <div class="col-6 bg-light py-3">
+                            <h4 class="fw-bolder mb-0 text-primary">@(Model.ReviewsPrimite?.Count ?? 0)</h4>
+                            <span class="text-uppercase small fw-bold text-muted" style="letter-spacing: 1px;">Review-uri</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Coloana Dreaptă: Activitate (Tabs) -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-header bg-white border-0 p-0">
-                    <ul class="nav nav-pills nav-fill" id="profileTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active rounded-0 py-3 fw-bold" id="auctions-tab" data-bs-toggle="tab" data-bs-target="#auctions" type="button" role="tab">
-                                <i class="bi bi-gavel me-2"></i>Licitații
+            <!-- Coloana Dreaptă: Activity Bento Grid -->
+            <div class="col-lg-8 animate__animated animate__fadeInRight">
+                <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white">
+                    <div class="card-header bg-white border-0 p-0">
+                        <nav class="nav nav-tabs nav-justified border-0" id="profileTabs" role="tablist">
+                            <button class="nav-link active py-4 fw-black text-uppercase tracking-wider border-0" id="auctions-tab" data-bs-toggle="tab" data-bs-target="#auctions" type="button" role="tab">
+                                <i class="bi bi-hammer me-2"></i>Portofoliu Licitații
                             </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link rounded-0 py-3 fw-bold" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
-                                <i class="bi bi-star me-2"></i>Review-uri
+                            <button class="nav-link py-4 fw-black text-uppercase tracking-wider border-0" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                                <i class="bi bi-chat-heart me-2"></i>Feedback Comunitate
                             </button>
-                        </li>
-                    </ul>
-                </div>
+                        </nav>
+                    </div>
 
-                <div class="card-body p-4 tab-content" id="profileTabsContent">
-                    <!-- Tab Licitații -->
-                    <div class="tab-pane fade show active" id="auctions" role="tabpanel">
-                        @if (licitatii != null && licitatii.Any())
-                        {
-                            <div class="row g-3">
-                                @foreach (var item in licitatii)
-                                {
-                                    <div class="col-12">
-                                        <div class="card border border-light shadow-none hover-card rounded-3 p-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="bg-light rounded-3 p-3 me-3">
-                                                        <i class="bi bi-box-seam text-primary fs-4"></i>
+                    <div class="card-body p-4 p-md-5 tab-content" id="profileTabsContent">
+                        <!-- Tab Licitații -->
+                        <div class="tab-pane fade show active" id="auctions" role="tabpanel">
+                            @if (licitatii != null && licitatii.Any())
+                            {
+                                <div class="row g-4">
+                                    @foreach (var item in licitatii)
+                                    {
+                                        <div class="col-12">
+                                            <div class="auction-card p-4 rounded-4 transition-all hover-glow border border-light-subtle">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-auto mb-3 mb-md-0">
+                                                        <div class="icon-box bg-primary-subtle text-primary rounded-4 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                                                            <i class="bi bi-box-seam fs-2"></i>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <h6 class="fw-bold mb-1">@item.titlu</h6>
-                                                        <small class="text-muted d-block mb-1">@item.descriere</small>
-                                                        <span class="badge bg-light text-secondary rounded-pill fw-normal">
-                                                            <i class="bi bi-clock me-1"></i>Expiră: @item.data_finalizare.ToString("dd.MM.yyyy")
+                                                    <div class="col-md">
+                                                        <h5 class="fw-bolder text-dark mb-1">@item.titlu</h5>
+                                                        <p class="text-muted small mb-2 text-truncate" style="max-width: 350px;">@item.descriere</p>
+                                                        <span class="badge bg-light text-dark rounded-pill border px-3 py-2 fw-medium">
+                                                            <i class="bi bi-calendar-check me-2 text-primary"></i>Termen: @item.data_finalizare.ToString("dd MMM yyyy")
                                                         </span>
                                                     </div>
-                                                </div>
-                                                <div class="text-end">
-                                                    <div class="fw-bold text-success fs-5">@item.PretCurent RON</div>
-                                                    <a href="/Licitatii/Details/@item.id" class="btn btn-sm btn-outline-primary rounded-pill px-3 mt-2">Vezi</a>
+                                                    <div class="col-md-auto text-md-end mt-3 mt-md-0">
+                                                        <div class="text-primary fw-black fs-4 mb-2">@item.PretCurent <small class="fs-6">RON</small></div>
+                                                        <a href="/Licitatii/Details/@item.id" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">Detalii</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-5">
-                                <i class="bi bi-info-circle text-muted display-4"></i>
-                                <p class="text-muted mt-3">Nicio licitație postată încă.</p>
-                                @if (ViewBag.EsteProfilPropriu == true)
-                                {
-                                    <a href="/Licitatii/Create" class="btn btn-primary rounded-pill">Adaugă Prima Licitație</a>
-                                }
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Tab Review-uri -->
-                    <div class="tab-pane fade" id="reviews" role="tabpanel">
-                        @if (Model.ReviewsPrimite != null && Model.ReviewsPrimite.Any())
-                        {
-                            @foreach (var review in Model.ReviewsPrimite)
-                            {
-                                <div class="card border-0 bg-light rounded-4 p-4 mb-3">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div class="text-warning fs-5">
-                                            @for (int i = 1; i <= 5; i++)
-                                            {
-                                                <i class="bi @(i <= review.Nota ? "bi-star-fill" : "bi-star")"></i>
-                                            }
-                                        </div>
-                                        <small class="text-muted fw-bold">@review.DataPublicarii.ToString("dd.MM.yyyy")</small>
-                                    </div>
-                                    <p class="mb-3 text-dark italic">"@review.Comentariu"</p>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 25px; height: 25px; font-size: 0.7rem;">
-                                            <i class="bi bi-person"></i>
-                                        </div>
-                                        <small class="text-muted">Utilizator ID: <span class="text-dark fw-bold">@review.BuyerId.ToString().Substring(0, 8)...</span></small>
-                                    </div>
+                                    }
                                 </div>
                             }
-                        }
-                        else
-                        {
-                            <div class="text-center py-5">
-                                <i class="bi bi-chat-left-dots text-muted display-4"></i>
-                                <p class="text-muted mt-3">Utilizatorul nu are încă review-uri.</p>
-                            </div>
-                        }
+                            else
+                            {
+                                <div class="text-center py-5">
+                                    <div class="bg-light rounded-circle d-inline-flex p-4 mb-4">
+                                        <i class="bi bi-journal-x display-4 text-muted"></i>
+                                    </div>
+                                    <h4 class="text-dark fw-bold">Nicio licitație găsită</h4>
+                                    <p class="text-muted">Acest profil nu are activitate de vânzare în prezent.</p>
+                                    @if (ViewBag.EsteProfilPropriu == true)
+                                    {
+                                        <a href="/Licitatii/Create" class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg mt-2">Lansează prima licitație</a>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Tab Review-uri -->
+                        <div class="tab-pane fade" id="reviews" role="tabpanel">
+                            @if (Model.ReviewsPrimite != null && Model.ReviewsPrimite.Any())
+                            {
+                                <div class="row g-4">
+                                    @foreach (var review in Model.ReviewsPrimite)
+                                    {
+                                        <div class="col-12 col-md-6">
+                                            <div class="card border-0 bg-light-subtle rounded-4 p-4 h-100 shadow-sm position-relative border">
+                                                <div class="quote-icon position-absolute top-0 end-0 m-3 opacity-10">
+                                                    <i class="bi bi-chat-right-quote-fill fs-1"></i>
+                                                </div>
+                                                <div class="mb-3">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <i class="bi @(i <= review.Nota ? "bi-star-fill text-warning" : "bi-star text-muted") me-1"></i>
+                                                    }
+                                                    <small class="text-muted fw-bold ms-2">@review.DataPublicarii.ToString("MMM yyyy")</small>
+                                                </div>
+                                                <p class="mb-4 text-dark fst-italic">"@review.Comentariu"</p>
+                                                <div class="d-flex align-items-center mt-auto">
+                                                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-2 shadow-sm" style="width: 35px; height: 35px;">
+                                                        <i class="bi bi-person-check"></i>
+                                                    </div>
+                                                    <small class="text-muted fw-bold">Cumparător verificat</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-5">
+                                    <i class="bi bi-stars text-muted display-1 opacity-25"></i>
+                                    <h4 class="text-muted mt-3">Curat și fără feedback încă</h4>
+                                    <p class="text-muted">Așteptăm primele impresii din partea comunității.</p>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -170,29 +180,82 @@
 </div>
 
 <style>
-    .nav-pills .nav-link {
+    :root {
+        --jakarta: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+        font-family: var(--jakarta);
+    }
+
+    .fw-black {
+        font-weight: 900;
+    }
+
+    .fw-extrabold {
+        font-weight: 800;
+    }
+
+    .tracking-wider {
+        letter-spacing: 1.5px;
+    }
+
+    .tracking-tight {
+        letter-spacing: -1px;
+    }
+
+    /* Tabs Styling */
+    .nav-tabs .nav-link {
         color: #6c757d;
-        border-bottom: 2px solid transparent;
+        background: #fdfdfd;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-bottom: 4px solid transparent !important;
     }
 
-        .nav-pills .nav-link.active {
-            background-color: transparent;
-            color: #0d6efd;
-            border-bottom: 2px solid #0d6efd;
+        .nav-tabs .nav-link.active {
+            background: white !important;
+            color: #0d6efd !important;
+            border-bottom: 4px solid #0d6efd !important;
         }
 
-    .hover-card {
-        transition: all 0.3s;
-        border: 1px solid #eee !important;
+    /* Auction Cards */
+    .auction-card {
+        background: white;
+        transition: all 0.3s ease;
+        position: relative;
     }
 
-        .hover-card:hover {
-            transform: translateX(5px);
-            border-color: #0d6efd !important;
-            background-color: #f8f9ff;
+    .hover-glow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(13, 110, 253, 0.1) !important;
+        border-color: #0d6efd !important;
+    }
+
+    .hover-up:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    /* Custom Transitions */
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+
+    .bg-light-subtle {
+        background-color: #fbfcfe !important;
+    }
+
+    /* Avatar Container */
+    .avatar-container {
+        display: inline-block;
+        transition: transform 0.5s ease;
+    }
+
+        .avatar-container:hover {
+            transform: scale(1.02) rotate(2deg);
         }
 
-    .avatar-upload:hover {
-        opacity: 0.8;
+    .rounded-5 {
+        border-radius: 2rem !important;
     }
 </style>

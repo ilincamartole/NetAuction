@@ -1,107 +1,237 @@
 ﻿@model IEnumerable<WebApplication1.Models.Bid>
 
 @{
-    ViewData["Title"] = "Dashboard Cumpărător";
+    ViewData["Title"] = "Activitate Licitare";
 }
 
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">
-            <i class="bi bi-speedometer2 me-2 text-primary"></i>Activitatea Mea
-        </h2>
-        <span class="badge bg-secondary rounded-pill px-3">@Model.Count() oferte totale</span>
+<div class="container-fluid py-5 px-lg-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); min-height: 90vh;">
+
+    <!-- Header Section: Statscards Dynamic -->
+    <div class="row mb-5 g-4 animate__animated animate__fadeIn">
+        <div class="col-12 col-xl-4">
+            <div class="p-4 rounded-5 shadow-sm border-0 bg-white h-100 d-flex flex-column justify-content-center position-relative overflow-hidden">
+                <div class="position-absolute end-0 bottom-0 opacity-10 me-n3 mb-n3">
+                    <i class="bi bi-hammer" style="font-size: 8rem;"></i>
+                </div>
+                <h6 class="text-uppercase text-muted fw-bold small mb-2 tracking-wider">Panou Control</h6>
+                <h2 class="fw-bolder mb-0 display-6">Activitatea Mea</h2>
+                <p class="text-muted small mt-2">Monitorizează-ți ofertele și câștigurile în timp real.</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-4">
+            <div class="p-4 rounded-5 shadow-sm border-0 bg-white h-100 d-flex align-items-center">
+                <div class="icon-shape bg-primary-subtle text-primary rounded-4 p-3 me-4 shadow-sm">
+                    <i class="bi bi-lightning-charge fs-2"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-0 fw-bold">Oferte Plasate</h6>
+                    <h3 class="fw-bolder mb-0 display-5">@Model.Count()</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-4">
+            <div class="p-4 rounded-5 shadow-sm border-0 bg-white h-100 d-flex align-items-center">
+                <div class="icon-shape bg-success-subtle text-success rounded-4 p-3 me-4 shadow-sm">
+                    <i class="bi bi-trophy fs-2"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-0 fw-bold">Licitații Câștigate</h6>
+                    <h3 class="fw-bolder mb-0 display-5 text-success">
+                        @Model.Where(b => b.licitatie.EsteIncheiata && b.licitatie.CastigatorId == b.userId).Select(b => b.licitatieId).Distinct().Count()
+                    </h3>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+        <div class="card border-0 shadow-lg rounded-5 p-5 text-center bg-white animate__animated animate__zoomIn">
             <div class="card-body">
-                <i class="bi bi-hammer display-1 text-muted mb-3"></i>
-                <h4 class="text-muted">Încă nu ai licitat pentru niciun produs.</h4>
-                <a asp-action="Index" class="btn btn-primary mt-3 rounded-pill px-4">Vezi Licitații Active</a>
+                <div class="bg-light rounded-circle d-inline-flex p-4 mb-4">
+                    <i class="bi bi-search display-1 text-muted"></i>
+                </div>
+                <h3 class="fw-bolder text-dark">Nu ai nicio activitate încă</h3>
+                <p class="text-muted fs-5 mb-4">Obiectele tale preferate te așteaptă. Începe să licitezi acum!</p>
+                <a asp-action="Index" class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold shadow-lg hover-up">
+                    <i class="bi bi-hammer me-2"></i>Explorează Licitațiile
+                </a>
             </div>
         </div>
     }
     else
     {
-        <div class="table-responsive bg-white shadow-sm rounded-4 p-3">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Produs</th>
-                        <th>Oferta Ta</th>
-                        <th>Data Ofertei</th>
-                        <th>Status Actual</th>
-                        <th class="text-end">Acțiuni</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var bid in Model)
-                    {
+        <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white animate__animated animate__fadeInUp">
+            <div class="card-header bg-white p-4 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="fw-bold mb-0 text-dark">Istoric Oferte</h4>
+                    <div class="search-box d-none d-md-block">
+                        <span class="badge bg-light text-dark rounded-pill px-3 py-2 border">Filtrare automată: Toate</span>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase fw-bold">
                         <tr>
-                            <td>
-                                <div class="fw-bold text-dark">@bid.licitatie.titlu</div>
-                                <small class="text-muted">Categorie: @bid.licitatie.Categorie</small>
-                            </td>
-                            <td>
-                                <span class="badge bg-primary fs-6 px-3">@bid.suma RON</span>
-                            </td>
-                            <td class="text-muted small">
-                                @bid.data.ToString("dd MMM yyyy, HH:mm:ss")
-                            </td>
-                            <td>
-                                @if (bid.licitatie.EsteIncheiata)
-                                {
-                                    @if (bid.licitatie.CastigatorId == bid.userId)
-                                    {
-                                        <span class="badge bg-success rounded-pill px-3 py-2">
-                                            <i class="bi bi-trophy-fill me-1"></i> Ai câștigat!
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary rounded-pill px-3 py-2">
-                                            <i class="bi bi-lock-fill me-1"></i> Încheiată
-                                        </span>
-                                    }
-                                }
-                                else
-                                {
-                                    @if (bid.suma == bid.licitatie.PretCurent)
-                                    {
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 rounded-pill py-2">
-                                            <i class="bi bi-trophy-fill me-1"></i> Ești lider
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 rounded-pill py-2">
-                                            <i class="bi bi-exclamation-circle-fill me-1"></i> Depășit (@bid.licitatie.PretCurent RON)
-                                        </span>
-                                    }
-                                }
-                            </td>
-                            <td class="text-end">
-                                <a asp-action="Details" asp-route-id="@bid.licitatieId" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                    <i class="bi bi-eye"></i> Detalii
-                                </a>
-                            </td>
+                            <th class="ps-4 py-3">Produs</th>
+                            <th class="py-3">Miza Ta</th>
+                            <th class="py-3 text-center">Moment Ofertă</th>
+                            <th class="py-3">Status Vital</th>
+                            <th class="text-end pe-4 py-3">Analiză</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var bid in Model)
+                        {
+                            <tr class="transition-all hover-row">
+                                <td class="ps-4 py-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-box me-3 rounded-4 bg-light d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-box-seam fs-4 text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bolder text-dark fs-6">@bid.licitatie.titlu</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">@bid.licitatie.Categorie</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bolder text-primary fs-5">@bid.suma <small class="fs-6">RON</small></div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="text-dark fw-medium">@bid.data.ToString("dd MMM yyyy")</div>
+                                    <div class="text-muted small">@bid.data.ToString("HH:mm:ss")</div>
+                                </td>
+                                <td>
+                                    @if (bid.licitatie.EsteIncheiata)
+                                    {
+                                        @if (bid.licitatie.CastigatorId == bid.userId)
+                                        {
+                                            <span class="badge bg-success text-white px-4 py-2 rounded-pill shadow-sm animate__animated animate__pulse animate__infinite">
+                                                <i class="bi bi-trophy-fill me-2"></i>Câștigător
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-4 py-2 rounded-pill">
+                                                <i class="bi bi-lock-fill me-2"></i>Finalizat
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @if (bid.suma == bid.licitatie.PretCurent)
+                                        {
+                                            <div class="status-indicator-box">
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-4 py-2 rounded-pill fw-bold">
+                                                    <span class="pulse-dot me-2"></span>Ești lider
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning-subtle text-danger border border-warning-subtle px-4 py-2 rounded-pill fw-bold">
+                                                <i class="bi bi-arrow-up-circle me-2"></i>Depășit (@bid.licitatie.PretCurent)
+                                            </span>
+                                        }
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Details" asp-route-id="@bid.licitatieId" class="btn btn-white btn-sm rounded-pill shadow-sm px-4 py-2 hover-primary transition-all">
+                                        Revizuiește <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     }
 </div>
 
 <style>
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
-        transition: 0.2s;
+    /* Premium UI Tokens */
+    .rounded-5 {
+        border-radius: 2rem !important;
     }
 
-    .badge {
-        font-weight: 500;
-        letter-spacing: 0.2px;
+    .tracking-wider {
+        letter-spacing: 1.5px;
+    }
+
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+
+    .hover-up {
+        transition: all 0.3s ease;
+    }
+
+        .hover-up:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important;
+        }
+
+    .hover-row:hover {
+        background-color: #fbfcfe !important;
+    }
+
+    .icon-shape {
+        width: 65px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-white {
+        background: white;
+        border: 1px solid #dee2e6;
+        color: #495057;
+    }
+
+    .hover-primary:hover {
+        background-color: #0d6efd;
+        color: white !important;
+        border-color: #0d6efd;
+    }
+
+    /* Pulse for live indicators */
+    .pulse-dot {
+        height: 8px;
+        width: 8px;
+        background-color: #198754;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse-animation 2s infinite;
+    }
+
+    @@keyframes pulse-animation {
+        0% {
+            box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+        }
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .display-5 {
+            font-size: 2.5rem;
+        }
+
+        .p-4 {
+            padding: 1.5rem !important;
+        }
     }
 </style>
