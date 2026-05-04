@@ -269,7 +269,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("licitatieId");
 
-                    b.ToTable("Bids");
+                    b.ToTable("Bids", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Licitatie", b =>
@@ -316,7 +316,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Licitatii");
+                    b.ToTable("Licitatii", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Review", b =>
@@ -351,7 +351,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

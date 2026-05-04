@@ -35,8 +35,10 @@
             -webkit-backdrop-filter: blur(12px) saturate(180%);
             background-color: var(--glass-bg);
             border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            sticky: top;
+            position: sticky;
+            top: 0;
             z-index: 1030;
+            transition: all 0.3s ease;
         }
 
         .navbar-brand {
@@ -73,13 +75,11 @@
                 box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
             }
 
-        /* Main Content Container Animate */
         .main-wrapper {
             flex: 1;
             padding-top: 20px;
         }
 
-        /* Footer Modern */
         footer {
             background: white;
             border-top: 1px solid rgba(0,0,0,0.05);
@@ -202,8 +202,51 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <!-- Micro-interactiune Navbar Scroll -->
+    <!-- SignalR Client & Logic -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
     <script>
+        // 1. Inițializare conexiune SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/auctionHub")
+            .withAutomaticReconnect()
+            .build();
+
+        // 2. Ascultare pentru notificarea "Outbid"
+        connection.on("ReceiveOutbidNotification", function (title, url) {
+            const toastId = 'outbid_' + Date.now();
+            const toastHTML = `
+                <div id="${toastId}" class="position-fixed bottom-0 end-0 p-4 animate__animated animate__fadeInRight" style="z-index: 11000;">
+                    <div class="card border-0 shadow-lg bg-dark text-white rounded-5" style="width: 320px;">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-danger rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width:35px; height:35px;">
+                                    <i class="bi bi-lightning-fill text-white"></i>
+                                </div>
+                                <h6 class="mb-0 fw-bold">Alertă Ofertă!</h6>
+                            </div>
+                            <p class="small opacity-75">Ai fost depășit la <strong>${title}</strong>. Acționează rapid!</p>
+                            <div class="d-flex gap-2 mt-3">
+                                <a href="${url}" class="btn btn-primary btn-sm rounded-pill flex-grow-1 fw-bold">Revino acum</a>
+                                <button class="btn btn-outline-light btn-sm rounded-circle" onclick="document.getElementById('${toastId}').remove()">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.body.insertAdjacentHTML('beforeend', toastHTML);
+
+            // Redare sunet discret
+            try {
+                new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play();
+            } catch(e) { console.log("Autoplay blocked"); }
+        });
+
+        // 3. Pornire conexiune
+        connection.start().catch(err => console.error("SignalR Error: " + err.toString()));
+
+        // Micro-interactiune Navbar Scroll
         $(window).scroll(function() {
             if ($(this).scrollTop() > 50) {
                 $('.navbar-glass').css('padding', '10px 0');

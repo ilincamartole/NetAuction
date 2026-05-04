@@ -8,7 +8,6 @@ namespace WebApplication1.Services
     {
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            // Configurează clientul SMTP (Datele de aici le iei din contul tău Mailtrap)
             var client = new SmtpClient("sandbox.smtp.mailtrap.io", 2525)
             {
                 Credentials = new NetworkCredential("858a30c593ab86", "9a47eecf0f4f26"),
@@ -17,14 +16,13 @@ namespace WebApplication1.Services
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress("admin@netAuction.ro", "Licitatii Team"),
+                From = new MailAddress("admin@netAuction.ro", "NetAuction Team"),
                 Subject = subject,
                 Body = htmlMessage,
                 IsBodyHtml = true
             };
 
             mailMessage.To.Add(email);
-
             return client.SendMailAsync(mailMessage);
         }
     }
