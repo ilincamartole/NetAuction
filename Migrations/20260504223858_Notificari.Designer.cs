@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504223858_Notificari")]
+    partial class Notificari
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,7 +272,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("licitatieId");
 
-                    b.ToTable("Bids", (string)null);
+                    b.ToTable("Bids");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Licitatie", b =>
@@ -319,7 +322,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Licitatii", (string)null);
+                    b.ToTable("Licitatii");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Review", b =>
@@ -354,7 +357,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

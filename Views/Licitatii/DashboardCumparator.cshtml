@@ -9,16 +9,19 @@
     <!-- Header Section: Statscards Dynamic -->
     <div class="row mb-5 g-4 animate__animated animate__fadeIn">
         <div class="col-12 col-xl-4">
+            <!-- Am adăugat 'overflow-hidden' pentru a ne asigura că elementele decorative nu ies din card -->
             <div class="p-4 rounded-5 shadow-sm border-0 bg-white h-100 d-flex flex-column justify-content-center position-relative overflow-hidden">
-                <div class="position-absolute end-0 bottom-0 opacity-10 me-n3 mb-n3">
-                    <i class="bi bi-hammer" style="font-size: 8rem;"></i>
+
+                <div class="position-absolute end-0 bottom-0 opacity-5 me-n2 mb-n2">
                 </div>
-                <h6 class="text-uppercase text-muted fw-bold small mb-2 tracking-wider">Panou Control</h6>
-                <h2 class="fw-bolder mb-0 display-6">Activitatea Mea</h2>
-                <p class="text-muted small mt-2">Monitorizează-ți ofertele și câștigurile în timp real.</p>
+
+                <h6 class="text-uppercase text-muted fw-bold small mb-2 tracking-wider position-relative" style="z-index: 2;">Panou Control</h6>
+                <h2 class="fw-bolder mb-0 display-6 position-relative" style="z-index: 2;">Activitatea Mea</h2>
+                <p class="text-muted small mt-2 position-relative" style="z-index: 2;">Monitorizează-ți ofertele și câștigurile în timp real.</p>
             </div>
         </div>
 
+        <!-- Restul coloanelor rămân neschimbate -->
         <div class="col-6 col-xl-4">
             <div class="p-4 rounded-5 shadow-sm border-0 bg-white h-100 d-flex align-items-center">
                 <div class="icon-shape bg-primary-subtle text-primary rounded-4 p-3 me-4 shadow-sm">

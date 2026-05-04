@@ -30,36 +30,41 @@ namespace WebApplication1.Controllers
             _emailSender = emailSender;
         }
 
-        // Afișează piața de licitații cu filtre
+        // Afișează piața de licitații cu filtre și notificări de câștig
         public async Task<IActionResult> Index(string categorie, decimal? pretMax, string searchString, string filter)
         {
             var licitatiiQuery = _context.Licitatii.AsQueryable();
 
+            // Filtrare după propriile licitații (Seller)
             if (filter == "mine" && User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 licitatiiQuery = licitatiiQuery.Where(l => l.seller_id == userId);
             }
 
+            // Filtrare după Categorie
             if (!string.IsNullOrEmpty(categorie) && Enum.TryParse<CategorieLicitatie>(categorie, out var catEnum))
             {
                 licitatiiQuery = licitatiiQuery.Where(x => x.Categorie == catEnum);
             }
 
+            // Filtrare după Preț
             if (pretMax.HasValue)
             {
                 licitatiiQuery = licitatiiQuery.Where(x => x.PretCurent <= pretMax.Value);
             }
 
+            // Filtrare după Titlu
             if (!string.IsNullOrEmpty(searchString))
             {
                 licitatiiQuery = licitatiiQuery.Where(x => x.titlu.Contains(searchString));
             }
 
-            // Verificare pentru notificarea de câștig (Pop-up WOW)
+            // --- LOGICĂ NOTIFICARE CÂȘTIGĂTOR (Pop-up WOW) ---
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // Căutăm o licitație câștigată de el, încheiată, dar pentru care nu a primit felicitări
                 var licitatieCastigata = await _context.Licitatii
                     .FirstOrDefaultAsync(l => l.CastigatorId == userId && l.EsteIncheiata && !l.NotificareTrimisa);
 
@@ -68,6 +73,7 @@ namespace WebApplication1.Controllers
                     ViewBag.ShowWinnerModal = true;
                     ViewBag.ProductName = licitatieCastigata.titlu;
 
+                    // Marcăm ca trimisă ca să nu apară la fiecare refresh
                     licitatieCastigata.NotificareTrimisa = true;
                     _context.Update(licitatieCastigata);
                     await _context.SaveChangesAsync();
@@ -117,7 +123,7 @@ namespace WebApplication1.Controllers
             return View(licitatie);
         }
 
-        // Detalii Licitație - Include Date Contact pentru Admin
+        // Detalii Licitație - Include Istoric, Mapare Usernames și Securitate Date Contact
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -127,6 +133,7 @@ namespace WebApplication1.Controllers
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            // 1. Preluăm istoricul ofertelor
             var istoricoferte = await _context.Bids
                 .Where(b => b.licitatieId == id)
                 .OrderByDescending(b => b.data)
@@ -134,6 +141,7 @@ namespace WebApplication1.Controllers
 
             ViewBag.OferteleMeleAici = istoricoferte.Where(b => b.userId == currentUserId).ToList();
 
+            // 2. Mapăm ID-urile la UserNames pentru afișare
             var userIds = istoricoferte.Select(b => b.userId).Distinct();
             var usernames = await _userManager.Users
                 .Where(u => userIds.Contains(u.Id))
@@ -145,12 +153,13 @@ namespace WebApplication1.Controllers
             var seller = await _userManager.FindByIdAsync(licitatie.seller_id);
             ViewBag.SellerName = seller?.UserName ?? "Utilizator necunoscut";
 
-            // LOGICĂ: Date câștigător (Email/Adresă vizibile DOAR pentru Admin)
+            // 3. LOGICĂ DE SECURITATE: Date contact câștigător (Doar pentru Admin)
             if (licitatie.EsteIncheiata && !string.IsNullOrEmpty(licitatie.CastigatorId))
             {
                 var winner = await _userManager.FindByIdAsync(licitatie.CastigatorId);
                 ViewBag.WinnerName = winner?.UserName;
 
+                // Datele private sunt trimise DOAR dacă utilizatorul curent este Admin
                 if (User.IsInRole("Admin"))
                 {
                     ViewBag.WinnerFullName = winner?.prenume + " " + winner?.nume;
@@ -162,10 +171,12 @@ namespace WebApplication1.Controllers
             return View(licitatie);
         }
 
+        // Dashboard Cumpărător (Toate ofertele mele)
         [Authorize]
         public async Task<IActionResult> DashboardCumparator()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var oferteleMele = await _context.Bids
                 .Where(b => b.userId == userId)
                 .Include(b => b.licitatie)
@@ -175,7 +186,7 @@ namespace WebApplication1.Controllers
             return View(oferteleMele);
         }
 
-        // Logică Licitare cu Notificări SignalR + Email
+        // Logică Licitare cu Notificări în timp real (SignalR) și Email
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -186,7 +197,7 @@ namespace WebApplication1.Controllers
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Identificăm cine deținea oferta anterioară pentru notificare
+            // Identificăm cine deținea oferta anterioară pentru a-l notifica
             var ultimaOferta = await _context.Bids
                 .Where(b => b.licitatieId == id)
                 .OrderByDescending(b => b.suma)
@@ -194,10 +205,11 @@ namespace WebApplication1.Controllers
 
             string userDepasitId = ultimaOferta?.userId;
 
+            // Verificare stare licitație
             if (licitatie.EsteIncheiata || licitatie.data_finalizare <= DateTime.Now)
             {
-                TempData["Error"] = "Licitația s-a încheiat.";
-                return RedirectToAction(nameof(Details), new { id });
+                TempData["Error"] = "Această licitație s-a încheiat și nu mai acceptă oferte.";
+                return RedirectToAction(nameof(Details), new { id = id });
             }
 
             if (licitatie.seller_id == currentUserId)
@@ -228,10 +240,10 @@ namespace WebApplication1.Controllers
                 {
                     var productUrl = Url.Action("Details", "Licitatii", new { id = licitatie.id }, Request.Scheme);
 
-                    // 1. SignalR (Notificare instantă pe site)
+                    // 1. SignalR (Notificare instantă în interfață)
                     await _hubContext.Clients.User(userDepasitId).SendAsync("ReceiveOutbidNotification", licitatie.titlu, productUrl);
 
-                    // 2. Email (Notificare prin serviciul EmailSender)
+                    // 2. Email (Notificare externă)
                     var userDepasit = await _userManager.FindByIdAsync(userDepasitId);
                     if (userDepasit != null)
                     {
@@ -259,6 +271,7 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var licitatie = await _context.Licitatii.FindAsync(id);
+            // Permite ștergerea doar dacă este seller-ul sau Admin (opțional, poți adăuga || User.IsInRole("Admin"))
             if (licitatie != null && licitatie.seller_id == User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
                 _context.Licitatii.Remove(licitatie);

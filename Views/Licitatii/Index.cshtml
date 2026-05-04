@@ -6,6 +6,72 @@
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
+<!-- Overlay Special pentru Câștigător (WOW Effect) -->
+@if (ViewBag.ShowWinnerModal == true)
+{
+    <div id="winnerOverlay" class="winner-overlay">
+        <div class="winner-content animate__animated animate__zoomInDown">
+            <div class="confetti-cannon"></div>
+            <div class="winner-card shadow-2-strong rounded-5 overflow-hidden">
+                <div class="card-header-win">
+                    <div class="trophy-wrapper">
+                        <i class="bi bi-trophy-fill trophy-icon animate__animated animate__infinite animate__tada"></i>
+                    </div>
+                    <h2 class="win-title">ESTI CASTIGATOR!</h2>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <p class="fs-5 text-muted mb-1">Felicitări! Ai plasat cea mai bună ofertă pentru:</p>
+                    <h3 class="product-name-win">@ViewBag.ProductName</h3>
+                    <div class="divider-win"></div>
+                    <p class="small text-muted mb-4 px-4">Verifică secțiunea "Ofertele Mele" pentru a finaliza tranzacția cu vânzătorul.</p>
+
+                    <button type="button" class="btn btn-win-action rounded-pill" onclick="closeWinnerOverlay()">
+                        <span>MULȚUMESC!</span>
+                        <i class="bi bi-stars ms-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas Confetti Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        function closeWinnerOverlay() {
+            const overlay = document.getElementById('winnerOverlay');
+            overlay.classList.add('animate__animated', 'animate__fadeOut');
+            setTimeout(() => overlay.remove(), 500);
+        }
+
+        function fireWorks() {
+            var duration = 7 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 10000 };
+
+            function randomInRange(min, max) {
+              return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+              var timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) {
+                return clearInterval(interval);
+              }
+
+              var particleCount = 70 * (timeLeft / duration);
+
+              // Explozii multiple din puncte diferite
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // Lansare automată la încărcare
+        window.addEventListener('load', fireWorks);
+    </script>
+}
+
 <div class="container-fluid py-5 px-lg-5" style="background: #f8f9fa;">
     <!-- Header Hero Section -->
     <div class="row align-items-center mb-5 animate__animated animate__fadeIn">
@@ -25,11 +91,10 @@
         </div>
     </div>
 
-    <!-- Smart Filter Bar: Glassmorphism Design -->
+    <!-- Smart Filter Bar -->
     <div class="card border-0 shadow-sm rounded-5 mb-5 glass-filter animate__animated animate__fadeInUp">
         <div class="card-body p-4">
             <form asp-action="Index" method="get" class="row g-3 align-items-end">
-                <!-- Toggle Filters -->
                 <div class="col-12 mb-2">
                     <div class="d-flex gap-2 p-1 bg-light rounded-pill d-inline-flex border">
                         <a class="btn rounded-pill px-4 py-2 @(Context.Request.Query["filter"] != "mine" ? "btn-white shadow-sm" : "btn-light text-muted")"
@@ -45,7 +110,7 @@
 
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input type="text" name="searchString" class="form-control border-0 bg-light rounded-4 px-4"
+                        <input type="text" name="searchString" class="form-control border-0 bg-light rounded-4 px-4 shadow-none"
                                id="searchLabel" placeholder="Căutare..." value="@Context.Request.Query["searchString"]">
                         <label for="searchLabel" class="ps-4">Ce cauți astăzi?</label>
                     </div>
@@ -53,7 +118,7 @@
 
                 <div class="col-md-3">
                     <div class="form-floating">
-                        <select name="categorie" class="form-select border-0 bg-light rounded-4 px-4" id="catLabel"
+                        <select name="categorie" class="form-select border-0 bg-light rounded-4 px-4 shadow-none" id="catLabel"
                                 asp-items="Html.GetEnumSelectList<WebApplication1.Models.CategorieLicitatie>()">
                             <option value="">Toate categoriile</option>
                         </select>
@@ -63,13 +128,13 @@
 
                 <div class="col-md-2">
                     <div class="form-floating">
-                        <input type="number" name="pretMax" class="form-control border-0 bg-light rounded-4 px-4"
+                        <input type="number" name="pretMax" class="form-control border-0 bg-light rounded-4 px-4 shadow-none"
                                id="priceLabel" placeholder="Buget" value="@Context.Request.Query["pretMax"]">
                         <label for="priceLabel" class="ps-4">Buget Max (RON)</label>
                     </div>
                 </div>
 
-                <div class="col-md-3 d-flex gap-2 py-1">
+                <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-dark flex-grow-1 rounded-4 py-3 fw-bold transition-all">
                         <i class="bi bi-search me-2"></i>Caută
                     </button>
@@ -89,7 +154,7 @@
                 <div class="bg-white d-inline-block p-5 rounded-5 shadow-sm">
                     <i class="bi bi-emoji-frown text-muted display-1"></i>
                     <h3 class="mt-4 fw-bold">Niciun rezultat găsit</h3>
-                    <p class="text-muted">Încearcă să schimbi filtrele sau caută cuvinte mai generale.</p>
+                    <p class="text-muted">Încearcă să schimbi filtrele.</p>
                 </div>
             </div>
         }
@@ -97,9 +162,8 @@
         @foreach (var item in Model)
         {
             <div class="col-sm-6 col-xl-3">
-                <div class="card h-100 border-0 shadow-sm bento-card rounded-5 overflow-hidden transition-all">
-                    <!-- Image Wrapper with Overlay -->
-                    <div class="position-relative overflow-hidden group" style="height: 240px;">
+                <div class="card h-100 border-0 shadow-sm bento-card rounded-5 overflow-hidden transition-all bg-white">
+                    <div class="position-relative overflow-hidden" style="height: 240px;">
                         @if (!string.IsNullOrEmpty(item.ImaginePath))
                         {
                             <img src="~/images/@item.ImaginePath" class="w-100 h-100 object-fit-cover transition-transform" alt="@item.titlu">
@@ -111,14 +175,12 @@
                             </div>
                         }
 
-                        <!-- Floating Category -->
                         <div class="position-absolute top-0 start-0 m-3">
                             <span class="badge glass-badge rounded-pill px-3 py-2 text-white fw-bold">
                                 @item.Categorie
                             </span>
                         </div>
 
-                        <!-- Status Indicator -->
                         @if (item.data_finalizare < DateTime.Now.AddHours(2) && !item.EsteIncheiata)
                         {
                             <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-danger text-white text-center small fw-bold animate__animated animate__pulse animate__infinite">
@@ -129,31 +191,20 @@
 
                     <div class="card-body p-4">
                         <h5 class="fw-bold text-dark mb-3 text-truncate-2" style="height: 3rem;">@item.titlu</h5>
-
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
-                                <p class="text-muted small text-uppercase fw-bold mb-0" style="font-size: 0.65rem; letter-spacing: 1px;">Preț Actual</p>
+                                <p class="text-muted small text-uppercase fw-bold mb-0" style="font-size: 0.65rem;">Preț Actual</p>
                                 <span class="fs-4 fw-bolder text-success">@item.PretCurent <small class="fs-6">RON</small></span>
                             </div>
                             <div class="text-end">
-                                <p class="text-muted small text-uppercase fw-bold mb-0" style="font-size: 0.65rem; letter-spacing: 1px;">Data Limită</p>
+                                <p class="text-muted small text-uppercase fw-bold mb-0" style="font-size: 0.65rem;">Dată Limită</p>
                                 <span class="fw-bold text-dark">@item.data_finalizare.ToString("dd MMM")</span>
                             </div>
                         </div>
-
                         <div class="d-flex gap-2">
                             <a asp-action="Details" asp-route-id="@item.id" class="btn btn-primary flex-grow-1 rounded-pill py-2 fw-bold shadow-sm">
                                 Licitează <i class="bi bi-arrow-right-short ms-1"></i>
                             </a>
-
-                            @if (User.Identity.IsAuthenticated && item.seller_id == currentUserId)
-                            {
-                                <form asp-action="Delete" asp-route-id="@item.id" method="post" onsubmit="return confirm('Sigur ștergi?');">
-                                    <button type="submit" class="btn btn-outline-danger rounded-circle p-2 px-3 border-0 bg-light">
-                                        <i class="bi bi-trash3"></i>
-                                    </button>
-                                </form>
-                            }
                         </div>
                     </div>
                 </div>
@@ -163,7 +214,110 @@
 </div>
 
 <style>
-    /* Premium UI Styling */
+    /* WOW NOTIFICATION STYLING */
+    .winner-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.85); /* Deep dark glass */
+        backdrop-filter: blur(12px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .winner-content {
+        max-width: 500px;
+        width: 100%;
+        position: relative;
+    }
+
+    .winner-card {
+        background: white;
+        border: none;
+        animation: cardFloat 3s ease-in-out infinite;
+    }
+
+    .card-header-win {
+        background: linear-gradient(135deg, #0d6efd 0%, #00d2ff 100%);
+        padding: 50px 20px;
+        text-align: center;
+        color: white;
+        position: relative;
+    }
+
+    .trophy-wrapper {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        border: 4px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .trophy-icon {
+        font-size: 3rem;
+        color: #FFD700; /* Gold */
+        filter: drop-shadow(0 0 10px rgba(255,215,0,0.5));
+    }
+
+    .win-title {
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin: 0;
+        text-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .product-name-win {
+        font-weight: 800;
+        color: #0d6efd;
+        margin-top: 10px;
+    }
+
+    .divider-win {
+        width: 60px;
+        height: 4px;
+        background: #0d6efd;
+        border-radius: 2px;
+        margin: 20px auto;
+        opacity: 0.3;
+    }
+
+    .btn-win-action {
+        background: #0d6efd;
+        color: white;
+        padding: 15px 40px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        border: none;
+        box-shadow: 0 10px 20px rgba(13, 110, 253, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-win-action:hover {
+            background: #0052cc;
+            transform: scale(1.05);
+            color: white;
+        }
+
+    @@keyframes cardFloat {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-15px);
+        }
+    }
+
+    /* EXISTING STYLES */
     .text-gradient {
         background: linear-gradient(45deg, #0d6efd, #0dcaf0);
         -webkit-background-clip: text;
@@ -174,12 +328,8 @@
         border-radius: 1.5rem !important;
     }
 
-    .tracking-tight {
-        letter-spacing: -1.5px;
-    }
-
     .glass-filter {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(10px);
     }
 
@@ -188,24 +338,18 @@
         color: #0d6efd;
     }
 
-    .bento-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .bento-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1.5rem 3rem rgba(0,0,0,0.1) !important;
     }
 
-        .bento-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 1.5rem 3rem rgba(0,0,0,0.1) !important;
+        .bento-card:hover img {
+            transform: scale(1.08);
         }
-
-            .bento-card:hover img {
-                transform: scale(1.1);
-            }
 
     .glass-badge {
         background: rgba(0,0,0,0.5);
         backdrop-filter: blur(5px);
-        font-size: 0.7rem;
-        letter-spacing: 0.5px;
     }
 
     .hover-lift:hover {
@@ -218,18 +362,5 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-    }
-
-    .bg-light-subtle {
-        background-color: #f1f3f5;
-    }
-
-    /* Transitions */
-    .transition-all {
-        transition: all 0.3s ease;
-    }
-
-    .transition-transform {
-        transition: transform 0.5s ease;
     }
 </style>
