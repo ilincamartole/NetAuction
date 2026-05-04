@@ -119,6 +119,13 @@ namespace WebApplication1.Controllers
             var seller = await _userManager.FindByIdAsync(licitatie.seller_id);
             ViewBag.SellerName = seller?.UserName ?? "Utilizator necunoscut";
 
+            // Trimitem ID-ul câștigătorului dacă licitația e închisă
+            if (licitatie.EsteIncheiata && !string.IsNullOrEmpty(licitatie.CastigatorId))
+            {
+                var winner = await _userManager.FindByIdAsync(licitatie.CastigatorId);
+                ViewBag.WinnerName = winner?.UserName;
+            }
+
             return View(licitatie);
         }
 
@@ -128,10 +135,9 @@ namespace WebApplication1.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // .OrderByDescending(b => b.data) asigură sortarea de la cea mai recentă în spate
             var oferteleMele = await _context.Bids
                 .Where(b => b.userId == userId)
-                .Include(b => b.licitatie) // Includem datele licitației pentru a afișa titlul/prețul în dashboard
+                .Include(b => b.licitatie)
                 .OrderByDescending(b => b.data)
                 .ToListAsync();
 
@@ -148,11 +154,14 @@ namespace WebApplication1.Controllers
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (licitatie.data_finalizare <= DateTime.Now)
+            // VERIFICARE: Licitația trebuie să fie activă
+            if (licitatie.EsteIncheiata || licitatie.data_finalizare <= DateTime.Now)
             {
-                TempData["Error"] = "Licitația s-a încheiat.";
+                TempData["Error"] = "Această licitație s-a încheiat și nu mai acceptă oferte.";
+                return RedirectToAction(nameof(Details), new { id = id });
             }
-            else if (licitatie.seller_id == currentUserId)
+
+            if (licitatie.seller_id == currentUserId)
             {
                 TempData["Error"] = "Nu poți licita la propriul tău produs.";
             }

@@ -42,5 +42,8 @@ namespace WebApplication1.Models
 
         [Required(ErrorMessage = "Selectarea unei categorii este obligatorie.")]
         public CategorieLicitatie Categorie { get; set; }
+
+        public string? CastigatorId { get; set; } // ID-ul userului care a câștigat
+        public bool EsteIncheiata { get; set; } = false; // Flag pentru status
     }
 }

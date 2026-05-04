@@ -39,7 +39,13 @@
                 </a>
             </p>
         </div>
-        <span class="badge rounded-pill bg-primary px-3 py-2">@Model.Categorie.ToString()</span>
+        <div class="d-flex flex-column align-items-end">
+            <span class="badge rounded-pill bg-primary px-3 py-2 mb-2">@Model.Categorie.ToString()</span>
+            @if (Model.EsteIncheiata)
+            {
+                <span class="badge rounded-pill bg-danger px-3 py-2">Licitație Încheiată</span>
+            }
+        </div>
     </div>
 
     <div class="row g-4">
@@ -70,7 +76,6 @@
                 </div>
             </div>
 
-            @* --- NOU: ISTORICUL TĂU PERSONAL PE ACEST PRODUS --- *@
             @if (User.Identity.IsAuthenticated)
             {
                 var mele = ViewBag.OferteleMeleAici as List<WebApplication1.Models.Bid>;
@@ -93,11 +98,10 @@
                 }
             }
 
-            <!-- Secțiune Istoric Oferte (General) -->
+            <!-- Secțiune Istoric Oferte -->
             <div class="card border-0 shadow-sm rounded-4 mt-4">
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-3"><i class="bi bi-graph-up-arrow me-2"></i>Istoric Oferte</h5>
-
                     @if (ViewBag.IstoricOferte != null && ((List<WebApplication1.Models.Bid>)ViewBag.IstoricOferte).Any())
                     {
                         <div class="table-responsive">
@@ -155,36 +159,54 @@
                         <div class="text-muted small mt-1">Preț pornire: @Model.PretPornire RON</div>
                     </div>
 
-                    <div class="alert alert-danger-subtle border-danger-subtle d-flex align-items-center mb-4 rounded-3">
-                        <i class="bi bi-clock-history me-2 fs-4 text-danger"></i>
+                    <div class="alert @(Model.EsteIncheiata ? "alert-secondary" : "alert-danger-subtle") border-danger-subtle d-flex align-items-center mb-4 rounded-3">
+                        <i class="bi @(Model.EsteIncheiata ? "bi-lock-fill" : "bi-clock-history") me-2 fs-4 @(Model.EsteIncheiata ? "text-secondary" : "text-danger")"></i>
                         <div>
-                            <small class="d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Timp Rămas</small>
-                            <span class="fw-bold text-danger">@Model.data_finalizare.ToString("dd MMM yyyy, HH:mm")</span>
+                            <small class="d-block text-uppercase fw-bold" style="font-size: 0.7rem;">@(Model.EsteIncheiata ? "Licitație Încheiată la" : "Timp Rămas")</small>
+                            <span class="fw-bold @(Model.EsteIncheiata ? "text-secondary" : "text-danger")">@Model.data_finalizare.ToString("dd MMM yyyy, HH:mm")</span>
                         </div>
                     </div>
 
-                    @if (User.Identity.IsAuthenticated)
+                    @if (!Model.EsteIncheiata && Model.data_finalizare > DateTime.Now)
                     {
-                        <div class="p-3 bg-light rounded-4 border border-2 border-dashed">
-                            <label class="form-label fw-bold mb-3 small">Plasează o ofertă</label>
-                            <form asp-action="Licitare" method="post">
-                                <input type="hidden" name="id" value="@Model.id" />
-                                <div class="input-group input-group-lg mb-3">
-                                    <span class="input-group-text bg-white border-end-0 text-muted small">RON</span>
-                                    <input type="number" name="sumaLicitata" class="form-control border-start-0 ps-0 fw-bold"
-                                           placeholder="@(Model.PretCurent + 1)" min="@(Model.PretCurent + 0.01m)" step="0.01" required />
-                                </div>
-                                <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold py-3 shadow">
-                                    <i class="bi bi-hammer me-2"></i>Licitează Acum
-                                </button>
-                            </form>
-                        </div>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <div class="p-3 bg-light rounded-4 border border-2 border-dashed">
+                                <label class="form-label fw-bold mb-3 small">Plasează o ofertă</label>
+                                <form asp-action="Licitare" method="post">
+                                    <input type="hidden" name="id" value="@Model.id" />
+                                    <div class="input-group input-group-lg mb-3">
+                                        <span class="input-group-text bg-white border-end-0 text-muted small">RON</span>
+                                        <input type="number" name="sumaLicitata" class="form-control border-start-0 ps-0 fw-bold"
+                                               placeholder="@(Model.PretCurent + 1)" min="@(Model.PretCurent + 0.01m)" step="0.01" required />
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold py-3 shadow">
+                                        <i class="bi bi-hammer me-2"></i>Licitează Acum
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning rounded-4 text-center">
+                                <p class="mb-2 small">Trebuie să fii autentificat pentru a licita.</p>
+                                <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-warning btn-sm rounded-pill">Autentificare</a>
+                            </div>
+                        }
                     }
                     else
                     {
-                        <div class="alert alert-warning rounded-4 text-center">
-                            <p class="mb-2 small">Trebuie să fii autentificat pentru a licita.</p>
-                            <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-warning btn-sm rounded-pill">Autentificare</a>
+                        <div class="alert alert-secondary rounded-4 text-center py-4 border-2">
+                            <i class="bi bi-trophy text-muted display-6 mb-2"></i>
+                            <h5 class="fw-bold mb-1">Rezultat Final</h5>
+                            @if (!string.IsNullOrEmpty(Model.CastigatorId))
+                            {
+                                <p class="text-success fw-bold mb-0">Câștigător: @ViewBag.WinnerName</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0 small">Încheiată fără câștigător</p>
+                            }
                         </div>
                     }
 
@@ -222,3 +244,28 @@
         z-index: 10;
     }
 </style>
+
+@section Scripts {
+    <script>
+        // Verificăm timpul din licitație față de timpul serverului/local
+        const endDateTime = new Date("@Model.data_finalizare.ToString("yyyy-MM-ddTHH:mm:ss")").getTime();
+
+        const countdownInterval = setInterval(function () {
+            const now = new Date().getTime();
+            const timeLeft = endDateTime - now;
+
+            // Dacă timpul a expirat și pagina nu arată încă starea "Încheiată", dăm refresh
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                @if (!Model.EsteIncheiata)
+                {
+                        <text>
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000); // Mică întârziere pentru a lăsa Background Service-ul să proceseze baza de date
+                        </text>
+                }
+            }
+        }, 1000);
+    </script>
+}

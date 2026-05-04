@@ -53,6 +53,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
+builder.Services.AddHostedService<AuctionWorker>();
+
 var app = builder.Build();
 
 // 7. Pipeline-ul de cereri (Middleware)

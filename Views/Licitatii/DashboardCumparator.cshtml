@@ -50,17 +50,35 @@
                                 @bid.data.ToString("dd MMM yyyy, HH:mm:ss")
                             </td>
                             <td>
-                                @if (bid.suma == bid.licitatie.PretCurent)
+                                @if (bid.licitatie.EsteIncheiata)
                                 {
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 rounded-pill">
-                                        <i class="bi bi-trophy-fill me-1"></i> Ești lider
-                                    </span>
+                                    @if (bid.licitatie.CastigatorId == bid.userId)
+                                    {
+                                        <span class="badge bg-success rounded-pill px-3 py-2">
+                                            <i class="bi bi-trophy-fill me-1"></i> Ai câștigat!
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary rounded-pill px-3 py-2">
+                                            <i class="bi bi-lock-fill me-1"></i> Încheiată
+                                        </span>
+                                    }
                                 }
                                 else
                                 {
-                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 rounded-pill">
-                                        <i class="bi bi-exclamation-circle-fill me-1"></i> Depășit (@bid.licitatie.PretCurent RON)
-                                    </span>
+                                    @if (bid.suma == bid.licitatie.PretCurent)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 rounded-pill py-2">
+                                            <i class="bi bi-trophy-fill me-1"></i> Ești lider
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 rounded-pill py-2">
+                                            <i class="bi bi-exclamation-circle-fill me-1"></i> Depășit (@bid.licitatie.PretCurent RON)
+                                        </span>
+                                    }
                                 }
                             </td>
                             <td class="text-end">
@@ -84,5 +102,6 @@
 
     .badge {
         font-weight: 500;
+        letter-spacing: 0.2px;
     }
 </style>
