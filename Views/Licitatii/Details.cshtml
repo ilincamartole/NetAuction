@@ -43,16 +43,14 @@
     </div>
 
     <div class="row g-4">
-        <!-- Partea Stângă: Imaginea și Descrierea -->
+        <!-- Partea Stângă -->
         <div class="col-lg-7">
+            <!-- Card Imagine -->
             <div class="card border-0 shadow-sm overflow-hidden rounded-4">
                 <div class="bg-dark d-flex align-items-center justify-content-center" style="min-height: 500px;">
                     @if (!string.IsNullOrEmpty(Model.ImaginePath))
                     {
-                        <img src="~/images/@Model.ImaginePath"
-                             class="img-fluid"
-                             alt="@Model.titlu"
-                             style="max-height: 600px; width: auto; object-fit: contain;" />
+                        <img src="~/images/@Model.ImaginePath" class="img-fluid" alt="@Model.titlu" style="max-height: 600px; width: auto; object-fit: contain;" />
                     }
                     else
                     {
@@ -64,15 +62,61 @@
                 </div>
             </div>
 
+            <!-- Card Descriere -->
             <div class="card border-0 shadow-sm rounded-4 mt-4">
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Descriere Produs</h5>
                     <p class="text-secondary leading-relaxed" style="white-space: pre-line;">@Model.descriere</p>
                 </div>
             </div>
+
+            <!-- NOU: Secțiune Istoric Oferte -->
+            <div class="card border-0 shadow-sm rounded-4 mt-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-graph-up-arrow me-2"></i>Istoric Oferte</h5>
+
+                    @if (ViewBag.IstoricOferte != null && ((List<WebApplication1.Models.Bid>)ViewBag.IstoricOferte).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Utilizator</th>
+                                        <th>Sumă Ofertată</th>
+                                        <th>Data și Ora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var bid in (List<WebApplication1.Models.Bid>)ViewBag.IstoricOferte)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="text-muted small"><i class="bi bi-person-circle me-1"></i> ID: @bid.userId.Substring(0, 8)...</span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold text-success">@bid.suma RON</span>
+                                            </td>
+                                            <td class="text-muted small">
+                                                @bid.data.ToString("dd MMM yyyy, HH:mm:ss")
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-chat-dots text-muted fs-2"></i>
+                            <p class="text-muted mt-2 small">Fii primul care licitează pentru acest produs!</p>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
 
-        <!-- Partea Dreaptă: Panou Licitare -->
+        <!-- Partea Dreaptă -->
         <div class="col-lg-5">
             <div class="card border-0 shadow-lg rounded-4 sticky-top" style="top: 2rem;">
                 <div class="card-body p-4">
@@ -90,36 +134,19 @@
                         </div>
                     </div>
 
-                    @* Formular Licitare *@
                     <div class="p-3 bg-light rounded-4 border border-2 border-dashed">
-                        <label class="form-label fw-bold mb-3">Plasează o ofertă</label>
+                        <label class="form-label fw-bold mb-3 small">Plasează o ofertă</label>
                         <form asp-action="Licitare" method="post">
                             <input type="hidden" name="id" value="@Model.id" />
                             <div class="input-group input-group-lg mb-3">
-                                <span class="input-group-text bg-white border-end-0 text-muted">RON</span>
-                                <input type="number" name="sumaLicitata"
-                                       class="form-control border-start-0 ps-0 fw-bold"
-                                       placeholder="@(Model.PretCurent + 1)"
-                                       min="@(Model.PretCurent + 0.01m)" step="0.01" required />
+                                <span class="input-group-text bg-white border-end-0 text-muted small">RON</span>
+                                <input type="number" name="sumaLicitata" class="form-control border-start-0 ps-0 fw-bold"
+                                       placeholder="@(Model.PretCurent + 1)" min="@(Model.PretCurent + 0.01m)" step="0.01" required />
                             </div>
                             <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold py-3 shadow">
                                 <i class="bi bi-hammer me-2"></i>Licitează Acum
                             </button>
                         </form>
-                        <small class="text-muted d-block text-center mt-3">
-                            <i class="bi bi-shield-check me-1"></i> Tranzacție securizată
-                        </small>
-                    </div>
-
-                    <div class="mt-4 pt-4 border-top">
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-link text-decoration-none text-muted p-0">
-                                <i class="bi bi-arrow-left me-1"></i>Înapoi la listă
-                            </a>
-                            <button class="btn btn-link text-decoration-none text-muted p-0">
-                                <i class="bi bi-share me-1"></i>Distribuie
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

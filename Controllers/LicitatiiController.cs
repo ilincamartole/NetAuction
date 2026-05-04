@@ -19,6 +19,7 @@ namespace WebApplication1.Controllers
             _userManager = userManager;
         }
 
+        // Păstrat implementarea colegilor pentru Index
         public async Task<IActionResult> Index(string categorie, decimal? pretMax, string searchString, string filter)
         {
             var licitatiiQuery = _context.Licitatii.AsQueryable();
@@ -57,7 +58,7 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> Create([Bind("titlu,descriere,PretPornire,data_finalizare,Categorie")] Licitatie licitatie, IFormFile? fisierImagine)
         {
             if (licitatie.data_finalizare <= DateTime.Now)
-                ModelState.AddModelError("data_finalizare", "Data de expirare trebuie să fie în viitor.");
+                ModelState.AddModelError("data_finalizare", "Data trebuie să fie în viitor.");
 
             ModelState.Remove("seller_id");
             ModelState.Remove("PretCurent");
@@ -87,11 +88,21 @@ namespace WebApplication1.Controllers
             return View(licitatie);
         }
 
+        // ACTUALIZAT: Details acum include și Istoricul de Oferte
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
+
             var licitatie = await _context.Licitatii.FirstOrDefaultAsync(m => m.id == id);
             if (licitatie == null) return NotFound();
+
+            // Preluăm istoricul ofertelor pentru această licitație
+            var istoricoferte = await _context.Bids
+                .Where(b => b.licitatieId == id)
+                .OrderByDescending(b => b.data)
+                .ToListAsync();
+
+            ViewBag.IstoricOferte = istoricoferte;
 
             var seller = await _userManager.FindByIdAsync(licitatie.seller_id);
             ViewBag.SellerName = seller?.UserName ?? "Utilizator necunoscut";
@@ -99,7 +110,6 @@ namespace WebApplication1.Controllers
             return View(licitatie);
         }
 
-        // --- IMPLEMENTARE NOUĂ: LOGICA DE LICITARE ---
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -110,46 +120,28 @@ namespace WebApplication1.Controllers
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Validări conform criteriilor de acceptare
             if (licitatie.data_finalizare <= DateTime.Now)
             {
-                TempData["Error"] = "Această licitație s-a încheiat.";
-                return RedirectToAction(nameof(Details), new { id = id });
+                TempData["Error"] = "Licitația s-a încheiat.";
             }
-
-            if (licitatie.seller_id == currentUserId)
+            else if (licitatie.seller_id == currentUserId)
             {
                 TempData["Error"] = "Nu poți licita la propriul tău produs.";
-                return RedirectToAction(nameof(Details), new { id = id });
             }
-
-            if (sumaLicitata <= licitatie.PretCurent)
+            else if (sumaLicitata <= licitatie.PretCurent)
             {
-                TempData["Error"] = $"Oferta trebuie să fie strict mai mare decât prețul actual ({licitatie.PretCurent} RON).";
-                return RedirectToAction(nameof(Details), new { id = id });
+                TempData["Error"] = $"Oferta trebuie să fie mai mare de {licitatie.PretCurent} RON.";
             }
-
-            // Actualizare bază de date
-            var bid = new Bid
+            else
             {
-                suma = sumaLicitata,
-                data = DateTime.Now,
-                licitatieId = id,
-                userId = currentUserId
-            };
+                var bid = new Bid { suma = sumaLicitata, data = DateTime.Now, licitatieId = id, userId = currentUserId };
+                licitatie.PretCurent = sumaLicitata;
 
-            licitatie.PretCurent = sumaLicitata;
-
-            try
-            {
                 _context.Bids.Add(bid);
                 _context.Update(licitatie);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Oferta ta a fost înregistrată cu succes! Ești noul lider.";
-            }
-            catch (Exception)
-            {
-                TempData["Error"] = "Eroare la procesarea ofertei.";
+
+                TempData["Success"] = "Oferta ta a fost înregistrată!";
             }
 
             return RedirectToAction(nameof(Details), new { id = id });
@@ -161,15 +153,8 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var licitatie = await _context.Licitatii.FindAsync(id);
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (licitatie != null && licitatie.seller_id == currentUserId)
+            if (licitatie != null && licitatie.seller_id == User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
-                if (!string.IsNullOrEmpty(licitatie.ImaginePath))
-                {
-                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", licitatie.ImaginePath);
-                    if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
-                }
                 _context.Licitatii.Remove(licitatie);
                 await _context.SaveChangesAsync();
             }
