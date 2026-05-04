@@ -46,6 +46,25 @@ namespace WebApplication1.Controllers
             }
 
             ViewBag.Categorii = Enum.GetValues(typeof(CategorieLicitatie));
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // Căutăm o licitație câștigată de el, încheiată, dar pentru care nu a primit felicitări
+                var licitatieCastigata = await _context.Licitatii
+                    .FirstOrDefaultAsync(l => l.CastigatorId == userId && l.EsteIncheiata && !l.NotificareTrimisa);
+
+                if (licitatieCastigata != null)
+                {
+                    ViewBag.ShowWinnerModal = true;
+                    ViewBag.ProductName = licitatieCastigata.titlu;
+
+                    // Marcăm ca trimisă ca să nu apară la fiecare refresh
+                    licitatieCastigata.NotificareTrimisa = true;
+                    _context.Update(licitatieCastigata);
+                    await _context.SaveChangesAsync();
+                }
+            }
             return View(await licitatiiQuery.ToListAsync());
         }
 
