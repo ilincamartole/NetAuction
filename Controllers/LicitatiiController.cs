@@ -98,16 +98,15 @@ namespace WebApplication1.Controllers
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // 1. Preluăm istoricul complet al ofertelor
+            // 1. Preluăm istoricul ofertelor
             var istoricoferte = await _context.Bids
                 .Where(b => b.licitatieId == id)
                 .OrderByDescending(b => b.data)
                 .ToListAsync();
 
-            // 2. Filtrăm ofertele utilizatorului curent pentru secțiunea personală
             ViewBag.OferteleMeleAici = istoricoferte.Where(b => b.userId == currentUserId).ToList();
 
-            // 3. Mapăm ID-urile de utilizator la UserNames pentru afișare în tabel
+            // 2. Mapăm ID-urile la UserNames
             var userIds = istoricoferte.Select(b => b.userId).Distinct();
             var usernames = await _userManager.Users
                 .Where(u => userIds.Contains(u.Id))
@@ -119,11 +118,19 @@ namespace WebApplication1.Controllers
             var seller = await _userManager.FindByIdAsync(licitatie.seller_id);
             ViewBag.SellerName = seller?.UserName ?? "Utilizator necunoscut";
 
-            // Trimitem ID-ul câștigătorului dacă licitația e închisă
+            // 3. LOGICĂ DE SECURITATE: Date contact câștigător
             if (licitatie.EsteIncheiata && !string.IsNullOrEmpty(licitatie.CastigatorId))
             {
                 var winner = await _userManager.FindByIdAsync(licitatie.CastigatorId);
                 ViewBag.WinnerName = winner?.UserName;
+
+                // VERIFICARE: Trimitem datele private DOAR dacă utilizatorul curent este Admin
+                if (User.IsInRole("Admin"))
+                {
+                    ViewBag.WinnerFullName = winner?.prenume + " " + winner?.nume;
+                    ViewBag.WinnerEmail = winner?.Email;
+                    ViewBag.WinnerAddress = winner?.adresa;
+                }
             }
 
             return View(licitatie);
