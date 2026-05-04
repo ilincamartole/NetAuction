@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
@@ -7,17 +7,18 @@ using WebApplication1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Servicii de baz?
+// 1. Servicii de bază
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 
-// 2. Configurare Baz? de Date
+// 2. Configurare Bază de Date
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 3. Configurare Identity cu suport pentru 2FA (AddDefaultTokenProviders este cheia)
+// 3. Configurare Identity
+// Am setat RequireConfirmedAccount = false pentru a evita eroarea "Invalid attempt" la login
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
-    options.SignIn.RequireConfirmedAccount = true;
+    options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequiredLength = 8;
     options.User.RequireUniqueEmail = true;
 })
@@ -25,33 +26,31 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 
-// 4. Serviciul de Email (Necesar pentru trimiterea codurilor 2FA prin mail)
+// 4. Serviciul de Email
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-// 5. Configur?ri de Securitate Avansate (Lockout & Parole)
+// 5. Configurări de Securitate (Lockout & Parole)
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    // Set?ri Lockout (Brute Force Protection)
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
 
-    // Set?ri extra pentru securitatea parolei
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireUppercase = true;
 });
 
-// 6. Securizarea Cookie-urilor (Previne atacurile de tip Session Hijacking)
+// 6. Securizarea Cookie-urilor
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.Cookie.HttpOnly = true; // JavaScript-ul nu poate fura cookie-ul
+    options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // For?eaz? HTTPS
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 var app = builder.Build();
@@ -68,7 +67,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Importante pentru Identity: Authentication trebuie s? fie �NAINTE de Authorization
+// Authentication trebuie să fie ÎNAINTE de Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -77,22 +76,62 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+
+// --- SEEDING LOGIC (Runtime) ---
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-    // 1. Creeaz? rolul dac? nu exist?
+    // A. Creare Rol Admin
     if (!await roleManager.RoleExistsAsync("Admin"))
     {
         await roleManager.CreateAsync(new IdentityRole("Admin"));
     }
 
-    // 2. Pune-?i email-ul t?u aici pentru a deveni Admin
-    var adminUser = await userManager.FindByEmailAsync("ilincamartole@gmail.com");
-    if (adminUser != null && !await userManager.IsInRoleAsync(adminUser, "Admin"))
+    // B. Listă Admini de creat
+    var adminData = new List<(string Email, string Nume)>
     {
-        await userManager.AddToRoleAsync(adminUser, "Admin");
+        ("vlad@test.com", "Vlad"),
+        ("simon@test.com", "Simon"),
+        ("ilinca@test.com", "Ilinca"),
+        ("maria@test.com", "Maria"),
+        ("ilincamartole@gmail.com", "Ilinca Admin")
+    };
+
+    foreach (var data in adminData)
+    {
+        var user = await userManager.FindByEmailAsync(data.Email);
+
+        if (user == null)
+        {
+            user = new ApplicationUser
+            {
+                UserName = data.Email,
+                Email = data.Email,
+                EmailConfirmed = true,
+                nume = data.Nume,     
+                prenume = "Admin",
+                adresa = "Adresa Generică Test",
+                balance = 0,
+                data_inregistrarii = DateTime.Now
+            };
+
+            var result = await userManager.CreateAsync(user, "ParolaTest123!");
+
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "Admin");
+            }
+        }
+        else
+        {
+            // Dacă user-ul există deja (din încercări anterioare), ne asigurăm doar că are rolul
+            if (!await userManager.IsInRoleAsync(user, "Admin"))
+            {
+                await userManager.AddToRoleAsync(user, "Admin");
+            }
+        }
     }
 }
 
