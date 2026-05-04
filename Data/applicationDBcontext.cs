@@ -13,6 +13,7 @@ namespace WebApplication1.Data
         {
         }
 
+
         // Aici definim cum se vor numi tabelele în baza de date
         public DbSet<Licitatie> Licitatii { get; set; }
         public DbSet<Bid> Bids { get; set; }
@@ -22,6 +23,9 @@ namespace WebApplication1.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+
+            builder.Entity<Licitatie>().Property(l => l.PretCurent).HasColumnType("decimal(18,2)");
+            builder.Entity<Licitatie>().Property(l => l.PretPornire).HasColumnType("decimal(18,2)");
             base.OnModelCreating(builder); // Nu șterge asta, e vitală pentru Identity!
 
             // Îi spunem clar: un Review are un Vanzator, iar Vanzatorul are lista ReviewsPrimite
