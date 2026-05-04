@@ -1,0 +1,88 @@
+﻿@model IEnumerable<WebApplication1.Models.Bid>
+
+@{
+    ViewData["Title"] = "Dashboard Cumpărător";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-speedometer2 me-2 text-primary"></i>Activitatea Mea
+        </h2>
+        <span class="badge bg-secondary rounded-pill px-3">@Model.Count() oferte totale</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+            <div class="card-body">
+                <i class="bi bi-hammer display-1 text-muted mb-3"></i>
+                <h4 class="text-muted">Încă nu ai licitat pentru niciun produs.</h4>
+                <a asp-action="Index" class="btn btn-primary mt-3 rounded-pill px-4">Vezi Licitații Active</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive bg-white shadow-sm rounded-4 p-3">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Produs</th>
+                        <th>Oferta Ta</th>
+                        <th>Data Ofertei</th>
+                        <th>Status Actual</th>
+                        <th class="text-end">Acțiuni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var bid in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">@bid.licitatie.titlu</div>
+                                <small class="text-muted">Categorie: @bid.licitatie.Categorie</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary fs-6 px-3">@bid.suma RON</span>
+                            </td>
+                            <td class="text-muted small">
+                                @bid.data.ToString("dd MMM yyyy, HH:mm:ss")
+                            </td>
+                            <td>
+                                @if (bid.suma == bid.licitatie.PretCurent)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 rounded-pill">
+                                        <i class="bi bi-trophy-fill me-1"></i> Ești lider
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 rounded-pill">
+                                        <i class="bi bi-exclamation-circle-fill me-1"></i> Depășit (@bid.licitatie.PretCurent RON)
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@bid.licitatieId" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="bi bi-eye"></i> Detalii
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: 0.2s;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+</style>

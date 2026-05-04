@@ -88,7 +88,7 @@ namespace WebApplication1.Controllers
             return View(licitatie);
         }
 
-        // ACTUALIZAT: Details acum include și Istoricul de Oferte
+        // ACTUALIZAT: Include Istoric General, Istoric Personal și Mapare UserNames
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -96,18 +96,46 @@ namespace WebApplication1.Controllers
             var licitatie = await _context.Licitatii.FirstOrDefaultAsync(m => m.id == id);
             if (licitatie == null) return NotFound();
 
-            // Preluăm istoricul ofertelor pentru această licitație
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // 1. Preluăm istoricul complet al ofertelor
             var istoricoferte = await _context.Bids
                 .Where(b => b.licitatieId == id)
                 .OrderByDescending(b => b.data)
                 .ToListAsync();
 
+            // 2. Filtrăm ofertele utilizatorului curent pentru secțiunea personală
+            ViewBag.OferteleMeleAici = istoricoferte.Where(b => b.userId == currentUserId).ToList();
+
+            // 3. Mapăm ID-urile de utilizator la UserNames pentru afișare în tabel
+            var userIds = istoricoferte.Select(b => b.userId).Distinct();
+            var usernames = await _userManager.Users
+                .Where(u => userIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.UserName);
+
             ViewBag.IstoricOferte = istoricoferte;
+            ViewBag.Usernames = usernames;
 
             var seller = await _userManager.FindByIdAsync(licitatie.seller_id);
             ViewBag.SellerName = seller?.UserName ?? "Utilizator necunoscut";
 
             return View(licitatie);
+        }
+
+        // PAGINĂ NOUĂ: Dashboard Cumpărător (Toate ofertele mele sortate recent)
+        [Authorize]
+        public async Task<IActionResult> DashboardCumparator()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // .OrderByDescending(b => b.data) asigură sortarea de la cea mai recentă în spate
+            var oferteleMele = await _context.Bids
+                .Where(b => b.userId == userId)
+                .Include(b => b.licitatie) // Includem datele licitației pentru a afișa titlul/prețul în dashboard
+                .OrderByDescending(b => b.data)
+                .ToListAsync();
+
+            return View(oferteleMele);
         }
 
         [Authorize]
@@ -134,7 +162,13 @@ namespace WebApplication1.Controllers
             }
             else
             {
-                var bid = new Bid { suma = sumaLicitata, data = DateTime.Now, licitatieId = id, userId = currentUserId };
+                var bid = new Bid
+                {
+                    suma = sumaLicitata,
+                    data = DateTime.Now,
+                    licitatieId = id,
+                    userId = currentUserId
+                };
                 licitatie.PretCurent = sumaLicitata;
 
                 _context.Bids.Add(bid);
