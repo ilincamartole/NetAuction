@@ -45,5 +45,7 @@ namespace WebApplication1.Models
 
         public string? CastigatorId { get; set; } // ID-ul userului care a câștigat
         public bool EsteIncheiata { get; set; } = false; // Flag pentru status
+
+        public bool NotificareTrimisa { get; set; } = false;
     }
 }
