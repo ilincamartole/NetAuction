@@ -30,7 +30,7 @@ namespace WebApplication1.Controllers
             _emailSender = emailSender;
         }
 
-        // Afișează piața de licitații cu filtre și notificări de câștig
+        // Afișează piața de licitații cu filtre și notificări pentru câștig
         public async Task<IActionResult> Index(string categorie, decimal? pretMax, string searchString, string filter)
         {
             var licitatiiQuery = _context.Licitatii.AsQueryable();
