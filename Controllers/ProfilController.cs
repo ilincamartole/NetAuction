@@ -47,12 +47,23 @@ namespace WebApplication1.Controllers
             var user = await _userManager.FindByNameAsync(username);
             if (user == null) return NotFound();
 
-            var licitatii = await _context.Licitatii
-                .Where(l => l.seller_id == user.Id)
-                .ToListAsync();
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var esteProfilPropriu = (user.Id == currentUserId);
+
+            var licitatiiQuery = _context.Licitatii.Where(l => l.seller_id == user.Id);
+
+            // Issue #14: pe profilul public, licitațiile expirate dispar de pe site.
+            // Pe profilul propriu, sellerul își vede toate licitațiile sale.
+            if (!esteProfilPropriu)
+            {
+                var acum = DateTime.Now;
+                licitatiiQuery = licitatiiQuery.Where(l => !l.EsteIncheiata && l.data_finalizare > acum);
+            }
+
+            var licitatii = await licitatiiQuery.ToListAsync();
 
             ViewBag.LicitatiiUser = licitatii;
-            ViewBag.EsteProfilPropriu = (user.Id == User.FindFirstValue(ClaimTypes.NameIdentifier));
+            ViewBag.EsteProfilPropriu = esteProfilPropriu;
 
             return View("Index", user); // Refolosim vederea Index pentru simplitate
         }
