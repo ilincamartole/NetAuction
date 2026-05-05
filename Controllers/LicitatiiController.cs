@@ -201,11 +201,14 @@ namespace WebApplication1.Controllers
                 return RedirectToAction(nameof(Details), new { id });
             }
 
+            // Sellerul nu poate licita la propriul produs (Issue #5)
             if (licitatie.seller_id == currentUserId)
             {
                 TempData["Error"] = "Nu poți licita la propriul tău produs.";
+                return RedirectToAction(nameof(Details), new { id });
             }
-            else if (sumaLicitata <= licitatie.PretCurent)
+
+            if (sumaLicitata <= licitatie.PretCurent)
             {
                 TempData["Error"] = $"Oferta trebuie să fie mai mare de {licitatie.PretCurent} RON.";
             }
