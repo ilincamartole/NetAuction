@@ -38,7 +38,15 @@ namespace WebApplication1.Controllers
             if (filter == "mine" && User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // Sellerul își vede toate licitațiile sale (inclusiv cele expirate, ca să poată vedea câștigătorul)
                 licitatiiQuery = licitatiiQuery.Where(l => l.seller_id == userId);
+            }
+            else
+            {
+                // Issue #14: Licitațiile expirate dispar din listingul public.
+                // Cumpărătorii care au licitat le pot vedea în DashboardCumparator.
+                var acum = DateTime.Now;
+                licitatiiQuery = licitatiiQuery.Where(l => !l.EsteIncheiata && l.data_finalizare > acum);
             }
 
             if (!string.IsNullOrEmpty(categorie) && Enum.TryParse<CategorieLicitatie>(categorie, out var catEnum))
