@@ -221,6 +221,15 @@
                                 }
                             </div>
                         }
+                        else if (currentUserId == Model.seller_id)
+                        {
+                            @* Sellerul nu poate licita la propriul produs (Issue #5) *@
+                            <div class="alert alert-info rounded-5 p-4 text-center border-0 shadow-sm mb-4 animate__animated animate__fadeIn">
+                                <i class="bi bi-info-circle-fill display-6 text-primary mb-2"></i>
+                                <h6 class="fw-bold mb-1">Aceasta este licitația ta</h6>
+                                <p class="mb-0 text-muted small">Nu poți plasa oferte la propriul tău produs.</p>
+                            </div>
+                        }
                         else
                         {
                             <div class="p-4 bg-light rounded-5 border-dashed border-2 border-primary mb-4">
