@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Services;
+using WebApplication1.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     .AddDefaultUI();
 
 // 4. Serviciul de Email
+// Înregistrare Servicii
+builder.Services.AddSignalR();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 // 5. Configurări de Securitate (Lockout & Parole)
@@ -136,5 +139,5 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
-
+app.MapHub<AuctionHub>("/auctionHub");
 app.Run();
