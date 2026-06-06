@@ -271,5 +271,11 @@ namespace WebApplication1.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+        // --- ENPOINT PENTRU PAGINA DE ASISTENT AI ---
+        public IActionResult Asistent()
+        {
+            return View();
+        }
     }
 }
