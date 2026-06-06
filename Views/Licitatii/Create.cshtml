@@ -59,7 +59,10 @@
                                         <div class="col-md-6">
                                             <div class="form-floating mb-3">
                                                 <input asp-for="PretPornire" class="form-control border-0 bg-light rounded-4 px-4" type="number" step="0.01" id="floatingPret" placeholder="0.00" />
-                                                <label asp-for="PretPornire" class="ps-4">Preț Pornire (RON)</label>
+                                                <button type="button" class="btn btn-outline-primary rounded-pill mt-2 w-100" id="btnAiPret" onclick="sugereazaPretAI()">
+                                                    <i class="bi bi-stars me-2"></i> Sugerează preț cu AI
+                                                </button>
+                                                <div id="aiPretStatus" class="small text-muted mt-1"></div>                                                <label asp-for="PretPornire" class="ps-4">Preț Pornire (RON)</label>
                                                 <span asp-validation-for="PretPornire" class="text-danger small px-2"></span>
                                             </div>
                                         </div>
@@ -250,5 +253,50 @@
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('dataFinalizare').min = now.toISOString().slice(0, 16);
+    </script>
+    <script>
+        async function sugereazaPretAI() {
+            const titlu = document.getElementById('floatingTitlu').value;
+            const statusDiv = document.getElementById('aiPretStatus');
+            const btn = document.getElementById('btnAiPret');
+
+            if (!titlu || titlu.length < 3) {
+                statusDiv.textContent = '⚠️ Introdu mai întâi titlul licitației.';
+                statusDiv.className = 'small text-warning mt-1';
+                return;
+            }
+
+            btn.disabled = true;
+            statusDiv.textContent = '⏳ AI-ul calculează prețul...';
+            statusDiv.className = 'small text-muted mt-1';
+
+            try {
+                const response = await fetch('/api/ai/sugereaza-pret', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ titlu: titlu })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.pret) {
+                    document.getElementById('floatingPret').value = data.pret;
+                    // Actualizează și preview-ul din pagină dacă există
+                    const previewPrice = document.getElementById('previewPrice');
+                    if (previewPrice) previewPrice.innerText = data.pret;
+
+                    statusDiv.textContent = `✅ AI sugerează ${data.pret} RON ca preț de pornire.`;
+                    statusDiv.className = 'small text-success mt-1';
+                } else {
+                    statusDiv.textContent = '❌ Nu s-a putut genera un preț. Încearcă din nou.';
+                    statusDiv.className = 'small text-danger mt-1';
+                }
+            } catch (e) {
+                statusDiv.textContent = '❌ Eroare de conexiune.';
+                statusDiv.className = 'small text-danger mt-1';
+            } finally {
+                btn.disabled = false;
+            }
+        }
     </script>
 }

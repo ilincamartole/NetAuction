@@ -58,6 +58,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddHostedService<AuctionWorker>();
 
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
 // 7. Pipeline-ul de cereri (Middleware)
@@ -140,4 +142,5 @@ using (var scope = app.Services.CreateScope())
     }
 }
 app.MapHub<AuctionHub>("/auctionHub");
+app.MapControllers();
 app.Run();
