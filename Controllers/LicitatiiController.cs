@@ -172,7 +172,16 @@ namespace WebApplication1.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> DashboardCumparator()
+        public IActionResult DashboardCumparator()
+        {
+            // Doar returnează View-ul ancoră. React va popula restul paginii asincron.
+            return View();
+        }
+
+        // --- ENDPOINT PENTRU RETURNARE DATE JSON CĂTRE REACT ---
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetDashboardData()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -180,9 +189,26 @@ namespace WebApplication1.Controllers
                 .Where(b => b.userId == userId)
                 .Include(b => b.licitatie)
                 .OrderByDescending(b => b.data)
+                .Select(b => new
+                {
+                    b.id,
+                    b.suma,
+                    data = b.data.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    b.licitatieId,
+                    b.userId,
+                    licitatie = new
+                    {
+                        b.licitatie.id,
+                        b.licitatie.titlu,
+                        Categorie = b.licitatie.Categorie.ToString(),
+                        b.licitatie.PretCurent,
+                        b.licitatie.EsteIncheiata,
+                        b.licitatie.CastigatorId
+                    }
+                })
                 .ToListAsync();
 
-            return View(oferteleMele);
+            return Json(oferteleMele);
         }
 
         [Authorize]
@@ -274,6 +300,79 @@ namespace WebApplication1.Controllers
 
         // --- ENPOINT PENTRU PAGINA DE ASISTENT AI ---
         public IActionResult Asistent()
+        {
+            return View();
+        }
+
+        // --- ENDPOINT JSON PENTRU PAGINA DE DETALII REACT ---
+        [HttpGet]
+        public async Task<IActionResult> GetLicitatieLiveDetails(int id)
+        {
+            var licitatie = await _context.Licitatii.FirstOrDefaultAsync(m => m.id == id);
+            if (licitatie == null) return NotFound();
+
+            var istoricoferte = await _context.Bids
+                .Where(b => b.licitatieId == id)
+                .OrderByDescending(b => b.data)
+                .ToListAsync();
+
+            var userIds = istoricoferte.Select(b => b.userId).Distinct();
+            var usernames = await _userManager.Users
+                .Where(u => userIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.UserName);
+
+            var seller = await _userManager.FindByIdAsync(licitatie.seller_id);
+
+            string winnerName = null;
+            string winnerFullName = null;
+            string winnerEmail = null;
+            string winnerAddress = null;
+
+            if (licitatie.EsteIncheiata && !string.IsNullOrEmpty(licitatie.CastigatorId))
+            {
+                var winner = await _userManager.FindByIdAsync(licitatie.CastigatorId);
+                winnerName = winner?.UserName;
+
+                if (User.IsInRole("Admin") && winner != null)
+                {
+                    winnerFullName = winner.prenume + " " + winner.nume;
+                    winnerEmail = winner.Email;
+                    winnerAddress = winner.adresa;
+                }
+            }
+
+            return Json(new
+            {
+                licitatie = new
+                {
+                    licitatie.id,
+                    licitatie.titlu,
+                    licitatie.descriere,
+                    licitatie.PretPornire,
+                    licitatie.PretCurent,
+                    dataFinalizare = licitatie.data_finalizare.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    licitatie.seller_id,
+                    licitatie.ImaginePath,
+                    categorie = licitatie.Categorie.ToString(),
+                    licitatie.CastigatorId,
+                    licitatie.EsteIncheiata
+                },
+                sellerName = seller?.UserName ?? "Utilizator necunoscut",
+                winnerName,
+                winnerFullName,
+                winnerEmail,
+                winnerAddress,
+                istoricOferte = istoricoferte.Select(b => new
+                {
+                    b.id,
+                    b.suma,
+                    data = b.data.ToString("dd MMM HH:mm"),
+                    username = usernames.ContainsKey(b.userId) ? usernames[b.userId] : "Utilizator"
+                })
+            });
+        }
+        [Authorize]
+        public IActionResult Favorite()
         {
             return View();
         }
