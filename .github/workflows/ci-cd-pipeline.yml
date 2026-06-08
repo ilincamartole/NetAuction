@@ -23,13 +23,13 @@ jobs:
 
     # Îi spunem explicit că .sln se află în folderul WebApplication1
     - name: Restaurare pachete NuGet
-      run: dotnet restore WebApplication1/WebApplication1.sln
+      run: dotnet restore WebApplication1.sln
 
     - name: Compilare Proiect Backend (Release)
-      run: dotnet build WebApplication1/WebApplication1.sln --no-restore --configuration Release
+      run: dotnet build WebApplication1.sln --no-restore --configuration Release
 
     - name: Rularea testelor unitare C#
-      run: dotnet test WebApplication1/WebApplication1.sln --no-build --verbosity normal
+      run: dotnet test WebApplication1.sln --no-build --verbosity normal
 
   # ==========================================
   # 🎨 JOB 2: FRONTEND (React)
@@ -47,15 +47,15 @@ jobs:
 
     - name: Instalare dependente React
       run: |
-        cd WebApplication1/netauction-react
+        cd netauction-react
         npm install
 
     - name: Rularea testelor Frontend
       run: |
-        cd WebApplication1/netauction-react
+        cd netauction-react
         CI=true npm test
 
     - name: Verificare Build de Productie React
       run: |
-        cd WebApplication1/netauction-react
+        cd netauction-react
         npm run build
