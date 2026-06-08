@@ -2,6 +2,62 @@
 import toast, { Toaster } from 'react-hot-toast';
 import { WatchlistContext } from './WatchlistContext.jsx';
 
+// 1. Componenta pentru Modală (complet izolată și stilizată)
+function ReviewModal({ show, onClose, sellerName, onSubmit }) {
+    const [nota, setNota] = useState(5);
+    const [comentariu, setComentariu] = useState('');
+
+    if (!show) return null;
+
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+        onSubmit(nota, comentariu);
+        setComentariu(''); // Resetăm textul după trimitere
+    };
+
+    return (
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050 }} tabIndex="-1">
+            <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content rounded-5 border-0 shadow p-4 bg-white text-start">
+                    <div className="modal-header border-0 p-0 mb-3 d-flex justify-content-between align-items-center">
+                        <h5 className="modal-title fw-bold text-dark">Lasă un review pentru {sellerName}</h5>
+                        <button type="button" className="btn-close" onClick={onClose}></button>
+                    </div>
+                    <form onSubmit={handleFormSubmit}>
+                        <div className="modal-body p-0">
+                            <div className="mb-3">
+                                <label className="form-label fw-bold text-secondary">Notă</label>
+                                <select className="form-select rounded-pill shadow-sm" value={nota} onChange={e => setNota(Number(e.target.value))}>
+                                    <option value="5">⭐⭐⭐⭐⭐ (5 / 5)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 / 5)</option>
+                                    <option value="3">⭐⭐⭐ (3 / 5)</option>
+                                    <option value="2">⭐⭐ (2 / 5)</option>
+                                    <option value="1">⭐ (1 / 5)</option>
+                                </select>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label fw-bold text-secondary">Comentariu</label>
+                                <textarea
+                                    className="form-control rounded-4 shadow-sm"
+                                    rows="4"
+                                    placeholder="Spune comunității cum a fost experiența cu acest vânzător..."
+                                    value={comentariu}
+                                    onChange={e => setComentariu(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-footer border-0 p-0 mt-4 d-flex justify-content-between">
+                            <button type="button" className="btn btn-light rounded-pill px-4 fw-bold" onClick={onClose}>Anulează</button>
+                            <button type="submit" className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Trimite Review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function DetailsApp() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -11,7 +67,9 @@ export default function DetailsApp() {
     const [isUrgent, setIsUrgent] = useState(false);
     const [priceChanged, setPriceChanged] = useState(false);
 
-    // Consumăm contextul global de favorite
+    // State dedicat deschiderii modalei de feedback
+    const [showReviewModal, setShowReviewModal] = useState(false);
+
     const { watchlist, toggleFavorite } = useContext(WatchlistContext);
 
     const licitatieId = window.currentLicitatieId;
@@ -106,6 +164,34 @@ export default function DetailsApp() {
         }
     };
 
+    // Corectat proprietatea obiectului de trimitere
+    const handleSumbitReview = async (nota, comentariu) => {
+        const loadToast = toast.loading('Se trimite review-ul...');
+        try {
+            const response = await fetch('/api/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nota: nota,
+                    comentariu: comentariu,
+                    sellerId: data.licitatie.seller_id // Rămâne mapat corect pe structura de date primită de la fetch
+                })
+            });
+
+            if (response.ok) {
+                toast.success('Review adăugat cu succes! Comunitatea îți mulțumește.', { id: loadToast });
+                setShowReviewModal(false);
+            } else {
+                const errorText = await response.text();
+                toast.error(errorText || 'Eroare la trimitere.', { id: loadToast });
+            }
+        } catch (err) {
+            toast.error('Eroare de rețea/conexiune.', { id: loadToast });
+        }
+    };
+
     if (loading) {
         return (
             <div className="text-center p-5 animate__animated animate__fadeIn">
@@ -115,171 +201,202 @@ export default function DetailsApp() {
         );
     }
 
-    const { licitatie, sellerName, winnerName, winnerFullName, winnerEmail, winnerAddress, istoricOferte } = data;
+    const { licitatie, sellerName, sellerEmail, winnerName, winnerFullName, winnerEmail, winnerAddress, istoricOferte } = data;
     const isFavorite = watchlist.includes(licitatie.id);
 
     return (
-        <div className="row g-5 text-start animate__animated animate__fadeIn">
+        <div className="position-relative">
             <Toaster position="top-right" />
-            <div className="col-lg-7">
-                {/* Header Titlu Curățat + Buton Inimioară Interactiv */}
-                <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-4 rounded-4 shadow-sm border">
-                    <div>
-                        <h2 className="fw-bold text-dark mb-1">{licitatie.titlu}</h2>
-                        <span className="badge bg-light text-secondary border rounded-pill px-3 py-2">ID Produs: #{licitatie.id}</span>
-                    </div>
-                    <button
-                        onClick={() => toggleFavorite(licitatie.id, licitatie.titlu)}
-                        className={`btn rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm transition-all`}
-                        style={{ width: '55px', height: '55px', backgroundColor: isFavorite ? '#ffe5ec' : '#f8f9fa', transition: 'all 0.2s' }}
-                    >
-                        <i className={`bi ${isFavorite ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary'} fs-3`}></i>
-                    </button>
-                </div>
 
-                <div className="card border-0 shadow-lg rounded-5 overflow-hidden">
-                    <div className="position-relative bg-dark d-flex align-items-center justify-content-center" style={{ minHeight: '550px' }}>
-                        {licitatie.imaginePath ? (
-                            <img src={`/images/${licitatie.imaginePath}`} className="img-fluid w-100" alt={licitatie.titlu} style={{ maxHeight: '650px', objectFit: 'contain' }} />
-                        ) : (
-                            <div className="text-white-50 text-center">
-                                <i className="bi bi-image display-1"></i>
-                                <p className="mt-3 fs-5">Imaginea nu a fost încărcată</p>
-                            </div>
-                        )}
-                        <div className="position-absolute top-0 end-0 m-4">
-                            <span className="badge bg-dark bg-opacity-50 text-white px-3 py-2 rounded-pill shadow-sm" style={{ backdropFilter: 'blur(10px)' }}>
-                                <i className="bi bi-tag-fill me-1"></i> {licitatie.categorie}
-                            </span>
+            <div className="row g-5 text-start animate__animated animate__fadeIn">
+                <div className="col-lg-7">
+                    <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-4 rounded-4 shadow-sm border">
+                        <div>
+                            <h2 className="fw-bold text-dark mb-1">{licitatie.titlu}</h2>
+                            <span className="badge bg-light text-secondary border rounded-pill px-3 py-2">ID Produs: #{licitatie.id}</span>
                         </div>
+                        <button
+                            onClick={() => toggleFavorite(licitatie.id, licitatie.titlu)}
+                            className="btn rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm transition-all"
+                            style={{ width: '55px', height: '55px', backgroundColor: isFavorite ? '#ffe5ec' : '#f8f9fa', transition: 'all 0.2s' }}
+                        >
+                            <i className={`bi ${isFavorite ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary'} fs-3`}></i>
+                        </button>
                     </div>
-                </div>
 
-                <div className="mt-5">
-                    <ul className="nav nav-pills mb-4 gap-2">
-                        <li className="nav-item">
-                            <button className={`nav-link rounded-pill px-4 fw-bold ${activeTab === 'descriere' ? 'active' : 'bg-white text-dark'}`} onClick={() => setActiveTab('descriere')}>Descriere</button>
-                        </li>
-                        <li className="nav-item">
-                            <button className={`nav-link rounded-pill px-4 fw-bold ${activeTab === 'istoric' ? 'active' : 'bg-white text-dark'}`} onClick={() => setActiveTab('istoric')}>Istoric Oferte</button>
-                        </li>
-                    </ul>
-
-                    <div className="tab-content">
-                        {activeTab === 'descriere' && (
-                            <div className="card border-0 shadow-sm rounded-5 p-4 animate__animated animate__fadeIn">
-                                <h4 className="fw-bold mb-4 text-dark">Despre acest obiect</h4>
-                                <p className="text-secondary fs-5" style={{ whiteSpace: 'pre-line', lineHeight: '1.8' }}>{licitatie.descriere}</p>
-                            </div>
-                        )}
-                        {activeTab === 'istoric' && (
-                            <div className="card border-0 shadow-sm rounded-5 p-4 animate__animated animate__fadeIn">
-                                {istoricOferte.length > 0 ? (
-                                    <div className="table-responsive">
-                                        <table className="table table-hover align-middle border-0">
-                                            <thead>
-                                                <tr className="text-muted small text-uppercase">
-                                                    <th className="border-0">Ofertant</th>
-                                                    <th className="border-0">Sumă</th>
-                                                    <th className="border-0 text-end">Dată</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {istoricOferte.map((bid, idx) => (
-                                                    <tr key={bid.id} className={idx === 0 ? "table-success bg-opacity-10" : ""}>
-                                                        <td className="border-0 fw-bold text-dark">{bid.username} {idx === 0 && !licitatie.esteIncheiata && '👑'}</td>
-                                                        <td className="border-0"><span className={`badge ${idx === 0 ? 'bg-success' : 'bg-success-subtle text-success'} rounded-pill px-3`}>{bid.suma} RON</span></td>
-                                                        <td className="border-0 text-end text-muted small">{bid.data}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                ) : (
-                                    <p className="text-muted text-center my-3">Nu există nicio ofertă plasată.</p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <div className="col-lg-5">
-                <div className="sticky-top" style={{ top: '2rem', zIndex: 10 }}>
-                    <div className="card border-0 shadow-2-strong rounded-5 overflow-hidden">
-                        <div className={`${licitatie.esteIncheiata ? 'bg-secondary' : isUrgent ? 'bg-danger' : 'bg-primary'} p-4 text-white text-center`}>
-                            <small className="text-white-50 text-uppercase fw-bold d-block">{licitatie.esteIncheiata ? 'Licitație Finalizată' : 'Timpul Rămas:'}</small>
-                            <div className={`display-6 fw-bolder mt-1 ${isUrgent && !licitatie.esteIncheiata ? 'animate__animated animate__pulse animate__infinite' : ''}`}>
-                                {licitatie.esteIncheiata ? 'ÎNCHEIATĂ' : timeLeft}
-                            </div>
-                        </div>
-
-                        <div className={`card-body p-4 p-xl-5 bg-white transition-all ${priceChanged ? 'bg-warning bg-opacity-25 animate__animated animate__shakeX' : ''}`} style={{ transition: 'all 0.4s ease' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-4">
-                                <div>
-                                    <small className="text-muted d-block fw-bold text-uppercase">Ofertă Curentă</small>
-                                    <h2 className="text-success fw-bolder display-5 mb-0">{licitatie.pretCurent} <small className="fs-4">RON</small></h2>
-                                </div>
-                                <div className="text-end">
-                                    <small className="text-muted d-block fw-bold text-uppercase">Preț Start</small>
-                                    <span className="fw-bold text-dark fs-5">{licitatie.pretPornire} RON</span>
-                                </div>
-                            </div>
-
-                            {licitatie.esteIncheiata ? (
-                                <div className="alert alert-dark rounded-4 p-4 text-center border-0 shadow-sm mb-4">
-                                    <i className="bi bi-trophy-fill display-5 text-warning mb-3 d-block"></i>
-                                    <h5 className="fw-bold">Rezultat Final</h5>
-                                    {winnerName ? (
-                                        <>
-                                            <p className="mb-0 fs-5">Câștigător: <span className="text-primary fw-bolder">{winnerName}</span></p>
-                                            {isAdmin && (
-                                                <div className="mt-4 p-3 bg-white rounded-4 border text-start shadow-sm small">
-                                                    <h6 className="fw-bold text-primary mb-2"><i className="bi bi-shield-lock me-2"></i>Date Contact Securizate</h6>
-                                                    <div>Nume: <strong>{winnerFullName}</strong></div>
-                                                    <div>Email: <strong>{winnerEmail}</strong></div>
-                                                    <div>Adresă: <strong>{winnerAddress}</strong></div>
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <p className="mb-0 text-muted">Licitație încheiată fără oferte.</p>
-                                    )}
-                                </div>
-                            ) : currentUserId === licitatie.seller_id ? (
-                                <div className="alert alert-info rounded-5 p-4 text-center border-0 shadow-sm mb-4">
-                                    <i className="bi bi-info-circle-fill display-6 text-primary mb-2 d-block"></i>
-                                    <h6 className="fw-bold">Gestiune Panou</h6>
-                                    <p className="mb-0 text-muted small">Nu poți plasa oferte la propriul tău produs.</p>
-                                </div>
+                    <div className="card border-0 shadow-lg rounded-5 overflow-hidden">
+                        <div className="position-relative bg-dark d-flex align-items-center justify-content-center" style={{ minHeight: '550px' }}>
+                            {licitatie.imaginePath ? (
+                                <img src={`/images/${licitatie.imaginePath}`} className="img-fluid w-100" alt={licitatie.titlu} style={{ maxHeight: '650px', objectFit: 'contain' }} />
                             ) : (
-                                <div className="p-4 bg-light rounded-5 border border-dashed border-primary border-2 mb-4">
-                                    <label className="form-label fw-bolder text-dark mb-3">Crește miza acum</label>
-                                    <form onSubmit={handleLicitare}>
-                                        <div className="input-group input-group-lg mb-3 shadow-sm rounded-pill overflow-hidden border-0">
-                                            <span className="input-group-text bg-white border-0 text-primary fw-bold">RON</span>
-                                            <input type="number" className="form-control border-0 ps-0 fw-bold" value={sumaLicitata} onChange={(e) => setSumaLicitata(e.target.value)} placeholder={(parseFloat(licitatie.pretCurent) + 1).toString()} step="0.01" required />
-                                        </div>
-                                        <button type="submit" className="btn btn-primary btn-lg w-100 rounded-pill fw-bolder py-3 shadow-lg hover-up-btn">
-                                            <i className="bi bi-hammer me-2"></i>Plasează Ofertă
-                                        </button>
-                                    </form>
+                                <div className="text-white-50 text-center">
+                                    <i className="bi bi-image display-1"></i>
+                                    <p className="mt-3 fs-5">Imaginea nu a fost încărcată</p>
                                 </div>
                             )}
+                            <div className="position-absolute top-0 end-0 m-4">
+                                <span className="badge bg-dark bg-opacity-50 text-white px-3 py-2 rounded-pill shadow-sm" style={{ backdropFilter: 'blur(10px)' }}>
+                                    <i className="bi bi-tag-fill me-1"></i> {licitatie.categorie}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-                            <div className="d-flex align-items-center p-3 rounded-4 bg-light">
-                                <div className="avatar-md bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style={{ width: '50px', height: '50px' }}>
-                                    <i className="bi bi-person-badge fs-4"></i>
+                    <div className="mt-5">
+                        <ul className="nav nav-pills mb-4 gap-2">
+                            <li className="nav-item">
+                                <button className={`nav-link rounded-pill px-4 fw-bold ${activeTab === 'descriere' ? 'active' : 'bg-white text-dark'}`} onClick={() => setActiveTab('descriere')}>Descriere</button>
+                            </li>
+                            <li className="nav-item">
+                                <button className={`nav-link rounded-pill px-4 fw-bold ${activeTab === 'istoric' ? 'active' : 'bg-white text-dark'}`} onClick={() => setActiveTab('istoric')}>Istoric Oferte</button>
+                            </li>
+                        </ul>
+
+                        <div className="tab-content">
+                            {activeTab === 'descriere' && (
+                                <div className="card border-0 shadow-sm rounded-5 p-4 animate__animated animate__fadeIn">
+                                    <h4 className="fw-bold mb-4 text-dark">Despre acest obiect</h4>
+                                    <p className="text-secondary fs-5" style={{ whiteSpace: 'pre-line', lineHeight: '1.8' }}>{licitatie.descriere}</p>
                                 </div>
-                                <div>
-                                    <small className="text-muted d-block">Vânzător autorizat</small>
-                                    <span className="text-dark fw-bold">{sellerName}</span>
+                            )}
+                            {activeTab === 'istoric' && (
+                                <div className="card border-0 shadow-sm rounded-5 p-4 animate__animated animate__fadeIn">
+                                    {istoricOferte.length > 0 ? (
+                                        <div className="table-responsive">
+                                            <table className="table table-hover align-middle border-0">
+                                                <thead>
+                                                    <tr className="text-muted small text-uppercase">
+                                                        <th className="border-0">Ofertant</th>
+                                                        <th className="border-0">Sumă</th>
+                                                        <th className="border-0 text-end">Dată</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {istoricOferte.map((bid, idx) => (
+                                                        <tr key={bid.id} className={idx === 0 ? "table-success bg-opacity-10" : ""}>
+                                                            <td className="border-0 fw-bold text-dark">{bid.username} {idx === 0 && !licitatie.esteIncheiata && '👑'}</td>
+                                                            <td className="border-0"><span className={`badge ${idx === 0 ? 'bg-success' : 'bg-success-subtle text-success'} rounded-pill px-3`}>{bid.suma} RON</span></td>
+                                                            <td className="border-0 text-end text-muted small">{bid.data}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p className="text-muted text-center my-3">Nu există nicio ofertă plasată.</p>
+                                    )}
                                 </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-lg-5">
+                    <div className="sticky-top" style={{ top: '2rem', zIndex: 10 }}>
+                        <div className="card border-0 shadow-2-strong rounded-5 overflow-hidden">
+                            <div className={`${licitatie.esteIncheiata ? 'bg-secondary' : isUrgent ? 'bg-danger' : 'bg-primary'} p-4 text-white text-center`}>
+                                <small className="text-white-50 text-uppercase fw-bold d-block">{licitatie.esteIncheiata ? 'Licitație Finalizată' : 'Timpul Rămas:'}</small>
+                                <div className={`display-6 fw-bolder mt-1 ${isUrgent && !licitatie.esteIncheiata ? 'animate__animated animate__pulse animate__infinite' : ''}`}>
+                                    {licitatie.esteIncheiata ? 'ÎNCHEIATĂ' : timeLeft}
+                                </div>
+                            </div>
+
+                            <div className={`card-body p-4 p-xl-5 bg-white transition-all ${priceChanged ? 'bg-warning bg-opacity-25 animate__animated animate__shakeX' : ''}`} style={{ transition: 'all 0.4s ease' }}>
+                                <div className="d-flex justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <small className="text-muted d-block fw-bold text-uppercase">Ofertă Curentă</small>
+                                        <h2 className="text-success fw-bolder display-5 mb-0">{licitatie.pretCurent} <small className="fs-4">RON</small></h2>
+                                    </div>
+                                    <div className="text-end">
+                                        <small className="text-muted d-block fw-bold text-uppercase">Preț Start</small>
+                                        <span className="fw-bold text-dark fs-5">{licitatie.pretPornire} RON</span>
+                                    </div>
+                                </div>
+
+                                {licitatie.esteIncheiata ? (
+                                    <div className="alert alert-dark rounded-4 p-4 text-center border-0 shadow-sm mb-4">
+                                        <i className="bi bi-trophy-fill display-5 text-warning mb-3 d-block"></i>
+                                        <h5 className="fw-bold">Rezultat Final</h5>
+                                        {winnerName ? (
+                                            <>
+                                                <p className="mb-0 fs-5">Câștigător: <span className="text-primary fw-bolder">{winnerName}</span></p>
+                                                {isAdmin && (
+                                                    <div className="mt-4 p-3 bg-white rounded-4 border text-start shadow-sm small">
+                                                        <h6 className="fw-bold text-primary mb-2"><i className="bi bi-shield-lock me-2"></i>Date Contact Securizate</h6>
+                                                        <div>Nume: <strong>{winnerFullName}</strong></div>
+                                                        <div>Email: <strong>{winnerEmail}</strong></div>
+                                                        <div>Adresă: <strong>{winnerAddress}</strong></div>
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <p className="mb-0 text-muted">Licitație încheiată fără oferte.</p>
+                                        )}
+                                    </div>
+                                ) : currentUserId === licitatie.seller_id ? (
+                                    <div className="alert alert-info rounded-5 p-4 text-center border-0 shadow-sm mb-4">
+                                        <i className="bi bi-info-circle-fill display-6 text-primary mb-2 d-block"></i>
+                                        <h6 className="fw-bold">Gestiune Panou</h6>
+                                        <p className="mb-0 text-muted small">Nu poți plasa oferte la propriul tău produs.</p>
+                                    </div>
+                                ) : (
+                                    <div className="p-4 bg-light rounded-5 border border-dashed border-primary border-2 mb-4">
+                                        <label className="form-label fw-bolder text-dark mb-3">Crește miza acum</label>
+                                        <form onSubmit={handleLicitare}>
+                                            <div className="input-group input-group-lg mb-3 shadow-sm rounded-pill overflow-hidden border-0">
+                                                <span className="input-group-text bg-white border-0 text-primary fw-bold">RON</span>
+                                                <input type="number" className="form-control border-0 ps-0 fw-bold" value={sumaLicitata} onChange={(e) => setSumaLicitata(e.target.value)} placeholder={(parseFloat(licitatie.pretCurent) + 1).toString()} step="0.01" required />
+                                            </div>
+                                            <button type="submit" className="btn btn-primary btn-lg w-100 rounded-pill fw-bolder py-3 shadow-lg hover-up-btn">
+                                                <i className="bi bi-hammer me-2"></i>Plasează Ofertă
+                                            </button>
+                                        </form>
+                                    </div>
+                                )}
+
+                                {/* ELEMENTUL RECONSTRUIT COMPLET PENTRU SĂNĂTATEA DESIGNULUI ȘI CLICK-ULUI */}
+                                <div className="d-flex align-items-center p-3 rounded-4 bg-light shadow-sm">
+                                    <div className="avatar-md bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style={{ width: '50px', height: '50px' }}>
+                                        <i className="bi bi-person-badge fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <small className="text-muted d-block fw-semibold">Vânzător autorizat</small>
+                                        {/*<div className="fw-bold text-dark">{sellerName}</div>*/}
+
+                                        {/* VALIDARE: Afișăm link-ul de review DOAR dacă cumpărătorul nu este proprietarul licitației */}
+                                        {currentUserId !== licitatie.seller_id ? (
+                                            <a
+                                                href="#review"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    console.log("Deschidem modala pentru recenzie!");
+                                                    setShowReviewModal(true);
+                                                }}
+                                                className="text-primary text-decoration-underline d-inline-block mt-1 fw-bold"
+                                                style={{ cursor: 'pointer', fontSize: '0.95rem' }}
+                                            >
+                                                {sellerEmail} <i className="bi bi-pencil-square ms-1 small"></i>
+                                            </a>
+                                        ) : (
+                                            /* Dacă sunt eu proprietarul panoului, văd doar text simplu securizat */
+                                            <small className="text-muted d-block">{sellerEmail} (Tu)</small>
+                                        )}
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* MODALA SE RANDEAZĂ ÎN AFARA STRUCTURII DE COLONNE */}
+            <ReviewModal
+                show={showReviewModal}
+                onClose={() => setShowReviewModal(false)}
+                sellerName={sellerName}
+                onSubmit={handleSumbitReview}
+            />
         </div>
     );
 }

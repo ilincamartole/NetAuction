@@ -358,6 +358,7 @@ namespace WebApplication1.Controllers
                     licitatie.EsteIncheiata
                 },
                 sellerName = seller?.UserName ?? "Utilizator necunoscut",
+                sellerEmail = seller?.Email,
                 winnerName,
                 winnerFullName,
                 winnerEmail,
