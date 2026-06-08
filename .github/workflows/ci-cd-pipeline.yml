@@ -1,10 +1,10 @@
-name: .NET & React CI/CD (Structura Unificata)
+name: .NET & React CI/CD (Cai Fixate)
 
 on:
   push:
-    branches: [ "master", "test_CI" ]
+    branches: [ "aster", "test_CI" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "test_CI" ]
 
 jobs:
   # ==========================================
@@ -21,15 +21,15 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
+    # Îi spunem explicit că .sln se află în folderul WebApplication1
     - name: Restaurare pachete NuGet
-      run: dotnet restore
+      run: dotnet restore WebApplication1/WebApplication1.sln
 
     - name: Compilare Proiect Backend (Release)
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build WebApplication1/WebApplication1.sln --no-restore --configuration Release
 
-    # Acum ca proiectul de teste este in repo, dotnet test il va gasi automat pe masina din cloud!
     - name: Rularea testelor unitare C#
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test WebApplication1/WebApplication1.sln --no-build --verbosity normal
 
   # ==========================================
   # 🎨 JOB 2: FRONTEND (React)
@@ -45,18 +45,17 @@ jobs:
       with:
         node-version: 20
 
-    # React este direct la primul nivel sub radacina repo-ului tau acum
     - name: Instalare dependente React
       run: |
-        cd netauction-react
+        cd WebApplication1/netauction-react
         npm install
 
     - name: Rularea testelor Frontend
       run: |
-        cd netauction-react
+        cd WebApplication1/netauction-react
         CI=true npm test
 
     - name: Verificare Build de Productie React
       run: |
-        cd netauction-react
+        cd WebApplication1/netauction-react
         npm run build
