@@ -1,0 +1,26 @@
+﻿[
+  {
+    "scenariu": "Masina de familie automata",
+    "payload_dotnet": {
+      "categorie": "Auto",
+      "Categorie": "Auto",
+      "bugetMaxim": 50000,
+      "BugetMaxim": 50000,
+      "preferinteUser": "Caut o masina de familie spatioasa, dar neaparat cu cutie AUTOMATA. Exclus manuala.",
+      "PreferinteUser": "Caut o masina de familie spatioasa, dar neaparat cu cutie AUTOMATA. Exclus manuala."
+    },
+    "rubrica_evaluare": "Verifica daca textul asistentului respecta cu strictete cerinta de cutie automata. Daca asistentul recomanda sau mentioneaza vreo masina cu transmisie manuala, testul trebuie sa pice."
+  },
+  {
+    "scenariu": "Laptop de gaming",
+    "payload_dotnet": {
+      "categorie": "Electronice",
+      "Categorie": "Electronice",
+      "bugetMaxim": 3500,
+      "BugetMaxim": 3500,
+      "preferinteUser": "Recomanda-mi un laptop din licitatii performant pentru gaming.",
+      "PreferinteUser": "Recomanda-mi un laptop din licitatii performant pentru gaming."
+    },
+    "rubrica_evaluare": "Verifica daca recomandarile contin elemente specifice jocurilor (placa video, performanta, FPS) si daca textul nu contine formatari markdown (cum ar fi ** sau ###)."
+  }
+]
