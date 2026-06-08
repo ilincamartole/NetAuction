@@ -1,82 +1,16 @@
-﻿@using WebApplication1.Models
-@using System.Security.Claims
-
-@{
+﻿@{
     ViewData["Title"] = "Ghid de Cumpărături AI";
-    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
 <div class="container py-5">
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb bg-white p-3 rounded-4 shadow-sm border-0">
             <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none fw-medium text-primary">Piața de Licitații</a></li>
-            <li class="breadcrumb-item active fw-bold text-dark">Asistent Inteligent</li>
+            <li class="breadcrumb-item active fw-bold text-dark">Asistent </li>
         </ol>
     </nav>
 
-    <div class="row g-5">
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-lg rounded-5 p-4 animate__animated animate__fadeIn">
-                <div class="d-flex align-items-center mb-4">
-                    <div class="avatar-md text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: #e3f2fd;">
-                        <i class="bi bi-robot fs-3 text-primary animate__animated animate__pulse animate__infinite"></i>
-                    </div>
-                    <div>
-                        <h3 class="fw-bold text-dark mb-1">Consultantul Tău AI</h3>
-                        <p class="text-muted small mb-0">Scanează baza de date NetAuction prin modelul Gemini 2.5 Flash</p>
-                    </div>
-                </div>
-
-                <hr class="text-muted opacity-25 mb-4">
-
-                <div class="mb-4">
-                    <label class="form-label fw-bolder text-dark mb-2"><i class="bi bi-tags me-1 text-primary"></i> Aria ta de interes</label>
-                    <select id="aiCategorie" class="form-select border-0 bg-light p-3 rounded-4 shadow-sm fw-medium" asp-items="Html.GetEnumSelectList<CategorieLicitatie>()"></select>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bolder text-dark mb-2"><i class="bi bi-wallet2 me-1 text-primary"></i> Buget maxim alocat (Opțional)</label>
-                    <div class="input-group shadow-sm rounded-4 overflow-hidden bg-light">
-                        <span class="input-group-text bg-light border-0 text-muted fw-bold px-3">RON</span>
-                        <input type="number" id="aiBuget" class="form-control border-0 bg-light p-3 fw-bold" placeholder="Ex: 500 (Lasă gol pentru nelimitat)" min="0" />
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bolder text-dark mb-2"><i class="bi bi-chat-right-text me-1 text-primary"></i> Ce anume cauți sau ce nevoi ai?</label>
-                    <textarea id="aiPreferinte" class="form-control border-0 bg-light p-3 rounded-4 shadow-sm text-secondary" rows="5" placeholder="Ex: Caut un laptop bunicel pentru facultate, să ruleze rapid documentele Word și să aibă o baterie rezistentă la cursuri..."></textarea>
-                </div>
-
-                <button onclick="trimiteCerereConsultanta()" class="btn btn-primary btn-lg w-100 rounded-pill fw-bolder py-3 shadow-lg hover-up-btn mt-2" id="btnTrimiteAi">
-                    <span id="aiSpinner" class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
-                    <span id="btnText"><i class="bi bi-magic me-1"></i> Generează Recomandări</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="col-lg-5">
-            <div class="sticky-top" style="top: 2rem; z-index: 10;">
-                <div class="card border-0 shadow-2-strong rounded-5 overflow-hidden animate__animated animate__fadeInRight">
-
-                    <div class="bg-primary p-4 text-white text-center position-relative">
-                        <small class="text-white-50 text-uppercase fw-bold tracking-wider">Ghid de Achiziție Inteligent</small>
-                        <div class="fs-4 fw-bolder mt-1"><i class="bi bi-cpu me-2"></i>Analiză Live Engine</div>
-                    </div>
-
-                    <div class="card-body p-4 p-xl-5 bg-white d-flex align-items-center justify-content-center" id="aiOutputContainer" style="min-height: 420px; max-height: 600px; overflow-y: auto;">
-
-                        <div class="text-center text-muted animate__animated animate__fadeIn" id="placeholderDefault">
-                            <i class="bi bi-chat-left-dots text-primary opacity-50 display-3"></i>
-                            <h5 class="fw-bold mt-3 text-dark">Analiză Pregătită</h5>
-                            <p class="small text-secondary px-3">Introdu preferințele în stânga. Agentul dedicat Gemini va analiza istoricul, prețurile curente și descrierile din baza de date pentru a-ți genera un raport personalizat.</p>
-                            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 border border-primary-subtle small"><i class="bi bi-lightning-charge-fill me-1"></i> Gemini 2.5 Flash Model Active</span>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="react-app-root"></div>
 </div>
 
 <style>
@@ -104,104 +38,8 @@
             transform: translateY(-5px);
             box-shadow: 0 15px 30px rgba(13, 110, 253, 0.3) !important;
         }
-
-    /* Stiluri premium pentru Skeleton Loader */
-    .skeleton-line {
-        height: 16px;
-        margin-bottom: 12px;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: loading-skeleton 1.5s infinite;
-        border-radius: 4px;
-    }
-
-    .skeleton-title {
-        height: 24px;
-        width: 60%;
-        margin-bottom: 20px;
-    }
-
-    @@keyframes loading-skeleton {
-        0% {
-            background-position: 200% 0;
-        }
-
-        100% {
-            background-position: -200% 0;
-        }
-    }
 </style>
 
 @section Scripts {
-    <script>
-        async function trimiteCerereConsultanta() {
-            const categorie = document.getElementById("aiCategorie").value;
-            const buget = document.getElementById("aiBuget").value;
-            const preferinte = document.getElementById("aiPreferinte").value;
-
-            const outputContainer = document.getElementById("aiOutputContainer");
-            const btn = document.getElementById("btnTrimiteAi");
-            const spinner = document.getElementById("aiSpinner");
-            const btnText = document.getElementById("btnText");
-
-            if (!preferinte.trim()) {
-                alert("Te rog să descrii în câteva cuvinte ce anume te interesează pentru ca asistentul AI să poată analiza piața!");
-                return;
-            }
-
-            // Stare de încărcare: Lock butoane & text dynamic
-            spinner.classList.remove("d-none");
-            btn.disabled = true;
-            btnText.innerText = " Se analizează piața...";
-
-            // Skeleton Loader fluid în locul spinnerului clasic
-            outputContainer.innerHTML = `
-                <div class="w-100 animate__animated animate__fadeIn align-self-start">
-                    <div class="skeleton-line skeleton-title"></div>
-                    <div class="skeleton-line" style="width: 90%;"></div>
-                    <div class="skeleton-line" style="width: 95%;"></div>
-                    <div class="skeleton-line" style="width: 75%;"></div>
-                    <div class="mt-4 skeleton-line skeleton-title" style="width: 40%;"></div>
-                    <div class="skeleton-line" style="width: 85%;"></div>
-                    <div class="skeleton-line" style="width: 90%;"></div>
-                    <p class="text-center text-muted small mt-4 fw-bold animate__animated animate__pulse animate__infinite"><i class="bi bi-database-fill-gear"></i> Agentul Corelează cerințele tale prin intermediul Gemini Engine...</p>
-                </div>`;
-
-            try {
-                const response = await fetch('/api/ai/consultanta-cumparaturi', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Categorie: parseInt(categorie),
-                        BugetMaxim: buget ? parseFloat(buget) : null,
-                        PreferinteUser: preferinte
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                     throw new Error(data.message || "Eroare de comunicare cu serverul.");
-                }
-
-                // Îndepărtăm alinierea pe centru a flexbox-ului pentru a lăsa textul HTML să se randeze nativ
-                outputContainer.classList.remove("align-items-center", "justify-content-center");
-                outputContainer.innerHTML = `<div class="animate__animated animate__fadeIn text-start text-dark leading-relaxed fs-6 w-100">${data.raspuns}</div>`;
-
-            } catch (error) {
-                outputContainer.innerHTML = `
-                    <div class="text-center text-danger animate__animated animate__shakeX">
-                        <i class="bi bi-x-circle display-4"></i>
-                        <p class="mt-2 fw-bold">A apărut o eroare la generare.</p>
-                        <small class="text-muted d-block">Verifică logurile aplicației sau asigură-te că valoarea cheii API Gemini este setată în appsettings.json.</small>
-                    </div>`;
-            } finally {
-                spinner.classList.add("d-none");
-                btn.disabled = false;
-                btnText.innerHTML = `<i class="bi bi-magic me-1"></i> Generează Recomandări`;
-            }
-        }
-    </script>
+    <script type="module" src="~/dist/main.js" asp-append-version="true"></script>
 }
