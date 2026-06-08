@@ -2,9 +2,9 @@ name: .NET & React CI/CD (Cai Fixate)
 
 on:
   push:
-    branches: [ "aster", "test_CI" ]
+    branches: [ "Master", "test_CI", "test_CD" ]
   pull_request:
-    branches: [ "master", "test_CI" ]
+    branches: [ "master", "test_CI", "test_CD" ]
 
 jobs:
   # ==========================================
@@ -55,3 +55,17 @@ jobs:
       run: |
         cd netauction-react
         npm run build
+
+## JOB 3---CD
+
+  deploy-to-render:
+    needs: [backend-build-test, frontend-build-test] # Pornim DOAR dacă testele de .NET și React au trecut cu succes!
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' # Trimitem live doar de pe master/main
+    
+    steps:
+    - name: Trigger Deploy pe Render.com
+      run: |
+        echo "Toate testele au trecut! Se trimite comanda de deploy pe Render..."
+        curl -X POST https://api.render.com/v1/services/toate-serviciile-tale/deploys \
+          -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
