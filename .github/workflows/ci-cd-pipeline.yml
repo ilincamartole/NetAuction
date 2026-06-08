@@ -1,0 +1,62 @@
+name: .NET & React CI/CD (Structura Unificata)
+
+on:
+  push:
+    branches: [ "master", "test_CI" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  # ==========================================
+  # 🖥️ JOB 1: BACKEND (.NET)
+  # ==========================================
+  backend-build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restaurare pachete NuGet
+      run: dotnet restore
+
+    - name: Compilare Proiect Backend (Release)
+      run: dotnet build --no-restore --configuration Release
+
+    # Acum ca proiectul de teste este in repo, dotnet test il va gasi automat pe masina din cloud!
+    - name: Rularea testelor unitare C#
+      run: dotnet test --no-build --verbosity normal
+
+  # ==========================================
+  # 🎨 JOB 2: FRONTEND (React)
+  # ==========================================
+  frontend-build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    # React este direct la primul nivel sub radacina repo-ului tau acum
+    - name: Instalare dependente React
+      run: |
+        cd netauction-react
+        npm install
+
+    - name: Rularea testelor Frontend
+      run: |
+        cd netauction-react
+        CI=true npm test
+
+    - name: Verificare Build de Productie React
+      run: |
+        cd netauction-react
+        npm run build
