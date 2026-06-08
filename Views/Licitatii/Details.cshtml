@@ -198,6 +198,41 @@
                                     <p class="mb-0 text-muted">Licitație încheiată fără oferte.</p>
                                 }
                             </div>
+
+                            @* --- PANOUL DE CONFIRMARE PLATĂ (DOAR PENTRU VÂNZĂTOR) --- *@
+                            @if (!string.IsNullOrEmpty(Model.CastigatorId) && currentUserId == Model.seller_id)
+                            {
+                                <div class="card border border-primary-subtle shadow-sm rounded-4 mb-4 bg-white animate__animated animate__fadeIn">
+                                    <div class="card-header bg-primary text-white p-3 border-0 d-flex align-items-center rounded-top-4">
+                                        <i class="bi bi-shield-check fs-5 me-2"></i>
+                                        <h6 class="mb-0 fw-bold">Gestionare Tranzacție</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        @if (!Model.PlataConfirmata)
+                                        {
+                                            <p class="text-muted small mb-3">Bifează căsuța de mai jos doar după ce ai verificat contul și ai primit banii de la cumpărător.</p>
+                                            <form asp-action="ConfirmaPlata" asp-route-id="@Model.id" method="post" id="formConfirmaPlata">
+                                                <div class="form-check form-switch p-3 bg-light rounded-3 d-flex align-items-center justify-content-between border">
+                                                    <label class="form-check-label fw-bold text-dark cursor-pointer mb-0 ps-2" for="switchPlata" style="font-size: 0.9rem;">
+                                                        Confirm încasarea plății
+                                                    </label>
+                                                    <input class="form-check-input cursor-pointer m-0" type="checkbox" id="switchPlata" style="width: 2.5em; height: 1.25em;">
+                                                </div>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-success-subtle border border-success text-success rounded-3 d-flex align-items-center p-2 m-0" role="alert">
+                                                <i class="bi bi-check-circle-fill me-2 fs-4"></i>
+                                                <div class="small">
+                                                    <strong class="d-block">Plată Confirmată!</strong>
+                                                    Cumpărătorul a fost notificat.
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         }
                         else if (currentUserId == Model.seller_id)
                         {
@@ -246,8 +281,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
 <style>
     body {
@@ -323,4 +356,5 @@
         const endDateTime = new Date("@Model.data_finalizare.ToString("yyyy-MM-ddTHH:mm:ss")").getTime();
         startTimer(endDateTime);
     </script>
+
 }

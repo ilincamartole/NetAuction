@@ -300,6 +300,73 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmaPlata(int id)
+        {
+            var licitatie = await _context.Licitatii.FindAsync(id);
+            if (licitatie == null) return NotFound();
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Ne asigurăm că doar vânzătorul produsului poate confirma plata
+            if (licitatie.seller_id != currentUserId)
+            {
+                return Forbid();
+            }
+
+            // Confirmarea se face doar dacă licitația e încheiată, are un câștigător și nu a fost deja confirmată
+            if (licitatie.EsteIncheiata && !string.IsNullOrEmpty(licitatie.CastigatorId) && !licitatie.PlataConfirmata)
+            {
+                licitatie.PlataConfirmata = true;
+                _context.Update(licitatie);
+
+                var cumparator = await _userManager.FindByIdAsync(licitatie.CastigatorId);
+                if (cumparator != null)
+                {
+                    // 1. Inserare Notificare în aplicație pentru Cumpărător
+                    _context.Notificari.Add(new Notificare
+                    {
+                        UserId = licitatie.CastigatorId,
+                        Mesaj = $"✅ Plata pentru '{licitatie.titlu}' a fost înregistrată! Vânzătorul îți va trimite produsul în curând.",
+                        Link = $"/Licitatii/Details/{licitatie.id}"
+                    });
+
+                    // 2. Trimitere Email către Cumpărător (Livrare în curând)
+                    if (!string.IsNullOrEmpty(cumparator.Email))
+                    {
+                        string subiect = $"Plată Confirmată & Livrare - {licitatie.titlu}";
+                        string mesajHtml = $@"
+                    <div style='font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; rounded-radius: 8px;'>
+                        <h2 style='color: #28a745;'>Plată Confirmată cu Succes! 🎉</h2>
+                        <p>Salut, <strong>{cumparator.UserName ?? cumparator.prenume}</strong>,</p>
+                        <p>Vânzătorul a confirmat primirea fondurilor pentru obiectul: <strong>{licitatie.titlu}</strong>.</p>
+                        <p>Suma recepționată: <strong>{licitatie.PretCurent} RON</strong>.</p>
+                        <div style='background-color: #f8f9fa; padding: 15px; border-left: 4px solid #0d6efd; margin: 20px 0;'>
+                            <p style='margin: 0; font-weight: bold; color: #0d6efd;'>📦 Status expediere: În curs de pregătire</p>
+                            <p style='margin: 5px 0 0 0; size: 14px; color: #6c757d;'>Vânzătorul ambalează produsul tău. Îl vei primi în curând la adresa specificată în profil.</p>
+                        </div>
+                        <hr style='border: 0; border-top: 1px solid #eee;'>
+                        <p style='font-size: 12px; color: #999;'>Acesta este un mesaj automat generat de platforma NetAuction.</p>
+                    </div>";
+
+                        try
+                        {
+                            await _emailSender.SendEmailAsync(cumparator.Email, subiect, mesajHtml);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[Eroare Email Plată] {ex.Message}");
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Plata a fost confirmată. Cumpărătorul a fost anunțat prin email și notificări.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id = licitatie.id });
+        }
     }
 }
