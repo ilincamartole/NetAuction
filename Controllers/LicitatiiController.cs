@@ -376,5 +376,54 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
+    
+
+    [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ConfirmarePlata(int id, [FromBody] bool statusPlata)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Căutăm licitația în baza de date
+            var licitatie = await _context.Licitatii.FindAsync(id);
+            if (licitatie == null) return NotFound(new { message = "Licitația nu a fost găsită." });
+
+            // Validare de securitate: Doar seller-ul acestei licitații are voie să bifeze primirea banilor
+            if (licitatie.seller_id != currentUserId)
+            {
+                return Forbid();
+            }
+
+            // Actualizăm starea în baza de date
+            licitatie.IsPaymentConfirmed = statusPlata;
+            _context.Update(licitatie);
+            await _context.SaveChangesAsync();
+
+            // Dacă a bifat că a primit banii (true), căutăm câștigătorul și îi trimitem mail prin Mailtrap
+            if (statusPlata && !string.IsNullOrEmpty(licitatie.CastigatorId))
+            {
+                var winner = await _userManager.FindByIdAsync(licitatie.CastigatorId);
+                if (winner != null && !string.IsNullOrEmpty(winner.Email))
+                {
+                    string subiect = $"Plată confirmată cu succes! - {licitatie.titlu}";
+                    string mailBody = $@"
+                <div style='font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;'>
+                    <h2 style='color: #2c3e50;'>Salutare, {winner.prenume}!</h2>
+                    <p>Avem vești bune! Vânzătorul a confirmat că a primit banii pentru produsul licitat: <strong>{licitatie.titlu}</strong>.</p>
+                    <p style='background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; font-weight: bold;'>
+                        ✓ Plata a fost confirmată cu succes!
+                    </p>
+                    <p>Vei primi produsul licitat în cel mai scurt timp la adresa specificată în profilul tău.</p>
+                    <hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;' />
+                    <p style='font-size: 0.9em; color: #7f8c8d;'>Echipa NetAuction</p>
+                </div>";
+
+                    // Trimitem efectiv mail-ul folosind Mailtrap-ul tău configurat în IEmailSender
+                    await _emailSender.SendEmailAsync(winner.Email, subiect, mailBody);
+                }
+            }
+
+            return Json(new { success = true, isPaymentConfirmed = licitatie.IsPaymentConfirmed });
+        }
     }
 }

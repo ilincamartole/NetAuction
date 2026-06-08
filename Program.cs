@@ -19,7 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // 3. Configurare Identity
 // Am setat RequireConfirmedAccount = false pentru a evita eroarea "Invalid attempt" la login
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
-    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequiredLength = 8;
     options.User.RequireUniqueEmail = true;
 })

@@ -35,6 +35,7 @@ namespace WebApplication1.Models
         [Required(ErrorMessage = "Data de finalizare este obligatorie.")]
         public DateTime data_finalizare { get; set; }
 
+        public bool IsPaymentConfirmed { get; set; } = false;
         public string seller_id { get; set; }
 
         // Câmp pentru stocarea numelui imaginii în DB
