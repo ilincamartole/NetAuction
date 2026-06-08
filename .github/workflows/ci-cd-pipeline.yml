@@ -21,7 +21,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    # Îi spunem explicit că .sln se află în folderul WebApplication1
     - name: Restaurare pachete NuGet
       run: dotnet restore WebApplication1.sln
 
@@ -32,7 +31,7 @@ jobs:
       run: dotnet test WebApplication1.sln --no-build --verbosity normal
 
   # ==========================================
-  # 🎨 JOB 2: FRONTEND (React)
+  # 🎨 JOB 2: FRONTEND (React + Playwright)
   # ==========================================
   frontend-build-test:
     runs-on: ubuntu-latest
@@ -50,10 +49,15 @@ jobs:
         cd netauction-react
         npm install
 
-    - name: Rularea testelor Frontend
+    - name: Instalare browsere izolate Playwright
       run: |
         cd netauction-react
-        CI=true npm test
+        npx playwright install --with-deps
+
+    - name: Rularea testelor Playwright Frontend
+      run: |
+        cd netauction-react
+        npx playwright test
 
     - name: Verificare Build de Productie React
       run: |
