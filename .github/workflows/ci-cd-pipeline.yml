@@ -28,7 +28,7 @@ jobs:
       run: dotnet build WebApplication1.sln --no-restore --configuration Release
 
     - name: Rularea testelor unitare C#
-      run: dotnet test WebApplication1.sln --no-build --verbosity normal
+      run: dotnet test WebApplication1.sln --no-build --configuration Release --verbosity normal
 
   ## ==========================================
   # 🎨 JOB 2: FRONTEND (React)
