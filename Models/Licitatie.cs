@@ -47,5 +47,12 @@ namespace WebApplication1.Models
         public bool EsteIncheiata { get; set; } = false; // Flag pentru status
 
         public bool NotificareTrimisa { get; set; } = false;
+
+    }
+    public class IstoricLicitatieViewModel
+    {
+        public Licitatie Licitatie { get; set; }
+        public decimal OfertaMeaMaxima { get; set; }
+        public string Status { get; set; } // Poate fi: "Activă", "Câștigată", "Pierdută"
     }
 }

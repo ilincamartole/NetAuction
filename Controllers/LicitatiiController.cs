@@ -176,13 +176,36 @@ namespace WebApplication1.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var oferteleMele = await _context.Bids
-                .Where(b => b.userId == userId)
-                .Include(b => b.licitatie)
-                .OrderByDescending(b => b.data)
+            // 1. Luăm licitațiile unice la care utilizatorul a licitat
+            // și calculăm direct în baza de date care a fost oferta lui maximă pentru fiecare
+            var istoricLicitatii = await _context.Licitatii
+                .Where(l => _context.Bids.Any(b => b.licitatieId == l.id && b.userId == userId))
+                .Select(l => new IstoricLicitatieViewModel
+                {
+                    Licitatie = l,
+                    OfertaMeaMaxima = _context.Bids.Where(b => b.licitatieId == l.id && b.userId == userId).Max(b => b.suma)
+                })
+                .OrderByDescending(i => i.Licitatie.data_finalizare)
                 .ToListAsync();
 
-            return View(oferteleMele);
+            // 2. Evaluăm statusul pentru fiecare licitație în parte
+            foreach (var item in istoricLicitatii)
+            {
+                if (!item.Licitatie.EsteIncheiata)
+                {
+                    item.Status = "Activă";
+                }
+                else if (item.Licitatie.CastigatorId == userId)
+                {
+                    item.Status = "Câștigată";
+                }
+                else
+                {
+                    item.Status = "Pierdută";
+                }
+            }
+
+            return View(istoricLicitatii);
         }
 
         [Authorize]

@@ -20,7 +20,7 @@ namespace WebApplication1.Data
 
         // Dacă ai creat modelul Review, adaugă-l și pe el:
         public DbSet<Review> Reviews { get; set; }
-
+        public DbSet<Notificare> Notificari { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
 
