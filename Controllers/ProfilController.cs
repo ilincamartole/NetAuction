@@ -19,32 +19,38 @@ namespace WebApplication1.Controllers
             _context = context;
             _userManager = userManager;
         }
-
         // 1. Pagina personală (accesată din meniu)
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string id)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByIdAsync(userId);
+            if (string.IsNullOrEmpty(id))
+            {
+                // Dacă nu se trimite ID, înseamnă că utilizatorul își vede propriul profil
+                id = _userManager.GetUserId(User);
+            }
+
+            var user = await _context.Users
+                .Include(u => u.ReviewsPrimite) // Include recenziile primite
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null) return NotFound();
 
-            var licitatiiProprii = await _context.Licitatii
-                .Where(l => l.seller_id == userId)
-                .ToListAsync();
-
-            ViewBag.LicitatiiUser = licitatiiProprii;
-            ViewBag.EsteProfilPropriu = true;
+            // CORECTAT: am schimbat l.SellerId în l.seller_id (așa cum e în modelul tău de Licitatie)
+            ViewBag.LicitatiiUser = await _context.Licitatii.Where(l => l.seller_id == id).ToListAsync();
+            ViewBag.EsteProfilPropriu = (id == _userManager.GetUserId(User));
 
             return View(user);
         }
 
         // 2. Pagina de detalii profil (accesată prin link de la licitații)
-        // URL: /Profil/Details?username=nume@email.com
         public async Task<IActionResult> Details(string username)
         {
             if (string.IsNullOrEmpty(username)) return NotFound();
 
-            var user = await _userManager.FindByNameAsync(username);
+            // CORECTAT: În loc de FindByNameAsync, interogăm cu contextul pentru a putea folosi .Include() pe review-uri!
+            var user = await _context.Users
+                .Include(u => u.ReviewsPrimite) // Adus review-urile și pe profilul public!
+                .FirstOrDefaultAsync(u => u.UserName == username);
+
             if (user == null) return NotFound();
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -52,8 +58,6 @@ namespace WebApplication1.Controllers
 
             var licitatiiQuery = _context.Licitatii.Where(l => l.seller_id == user.Id);
 
-            // Issue #14: pe profilul public, licitațiile expirate dispar de pe site.
-            // Pe profilul propriu, sellerul își vede toate licitațiile sale.
             if (!esteProfilPropriu)
             {
                 var acum = DateTime.Now;
@@ -65,9 +69,8 @@ namespace WebApplication1.Controllers
             ViewBag.LicitatiiUser = licitatii;
             ViewBag.EsteProfilPropriu = esteProfilPropriu;
 
-            return View("Index", user); // Refolosim vederea Index pentru simplitate
+            return View("Index", user);
         }
-
         [HttpPost]
         public async Task<IActionResult> IncarcaPoza(IFormFile pozaFile)
         {
