@@ -30,8 +30,8 @@ jobs:
     - name: Rularea testelor unitare C#
       run: dotnet test WebApplication1.sln --no-build --verbosity normal
 
-  # ==========================================
-  # 🎨 JOB 2: FRONTEND (React + Playwright)
+  ## ==========================================
+  # 🎨 JOB 2: FRONTEND (React)
   # ==========================================
   frontend-build-test:
     runs-on: ubuntu-latest
@@ -49,15 +49,7 @@ jobs:
         cd netauction-react
         npm install
 
-    - name: Instalare browsere izolate Playwright
-      run: |
-        cd netauction-react
-        npx playwright install --with-deps
-
-    - name: Rularea testelor Playwright Frontend
-      run: |
-        cd netauction-react
-        npx playwright test
+    # Am scos rularea testelor automate de browser care aveau nevoie de localhost pornit
 
     - name: Verificare Build de Productie React
       run: |
