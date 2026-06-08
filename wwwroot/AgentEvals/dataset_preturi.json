@@ -1,0 +1,102 @@
+﻿[
+  {
+    "nume_produs": "iPhone 15 Pro Max 256GB Sigilat Nou",
+    "pret_minim": 4000,
+    "pret_maxim": 7000
+  },
+  {
+    "nume_produs": "iPhone 11 cu ecran complet spart si carcasa indoita",
+    "pret_minim": 200,
+    "pret_maxim": 1000
+  },
+  {
+    "nume_produs": "Tastatura mecanica simpla de birou din plastic",
+    "pret_minim": 30,
+    "pret_maxim": 200
+  },
+  {
+    "nume_produs": "Dacia Logan an 2007 rugina functionala",
+    "pret_minim": 2500,
+    "pret_maxim": 10000
+  },
+  {
+    "nume_produs": "Laptop Gaming ASUS ROG Intel i9 RTX 4080 32GB RAM Stare Impecabila",
+    "pret_minim": 6000,
+    "pret_maxim": 12000
+  },
+  {
+    "nume_produs": "Incarcator original Apple USB-C 20W doar cablul fara adaptor",
+    "pret_minim": 20,
+    "pret_maxim": 80
+  },
+  {
+    "nume_produs": "Ceas Rolex Submariner original din aur 18k cu acte si cutie",
+    "pret_minim": 45000,
+    "pret_maxim": 150000
+  },
+  {
+    "nume_produs": "Replica Ceas de lux faimos quartz (nu este original)",
+    "pret_minim": 50,
+    "pret_maxim": 250
+  },
+  {
+    "nume_produs": "Televizor Smart Samsung LED 4K 138 cm cu dunga neagra pe mijlocul ecranului",
+    "pret_minim": 150,
+    "pret_maxim": 600
+  },
+  {
+    "nume_produs": "Consola Sony PlayStation 5 (PS5) Digital Edition + 2 Controlere in cutie",
+    "pret_minim": 1400,
+    "pret_maxim": 2400
+  },
+  {
+    "nume_produs": "Carcasa goala PlayStation 5 din plastic (fara consola/fara componente)",
+    "pret_minim": 30,
+    "pret_maxim": 150
+  },
+  {
+    "nume_produs": "Bicicleta Mountain Bike DHS aluminiu roti 29 inch utilizata",
+    "pret_minim": 400,
+    "pret_maxim": 1200
+  },
+  {
+    "nume_produs": "Adidasi Nike Air Jordan 1 Retro marimea 43 purtati o singura data",
+    "pret_minim": 300,
+    "pret_maxim": 800
+  },
+  {
+    "nume_produs": "Placa video NVIDIA RTX 3070 8GB folosita doar pt gaming neumblat in ea",
+    "pret_minim": 1100,
+    "pret_maxim": 1900
+  },
+  {
+    "nume_produs": "Placa video defecta porneste dar nu da semnal video (pentru piese)",
+    "pret_minim": 50,
+    "pret_maxim": 250
+  },
+  {
+    "nume_produs": "Moneda veche din argint bauta in anul 1912 stare excelenta de conservare",
+    "pret_minim": 100,
+    "pret_maxim": 600
+  },
+  {
+    "nume_produs": "BMW Seria 3 F30 anul 2014 diesel 200.000km reali fara accident",
+    "pret_minim": 35000,
+    "pret_maxim": 65000
+  },
+  {
+    "nume_produs": "Garsoniera confort 1 decomandata Bucuresti Sector 3 nemobilata",
+    "pret_minim": 180000,
+    "pret_maxim": 350000
+  },
+  {
+    "nume_produs": "Aparat foto Canon DSLR EOS 2000D kit cu obiectiv 18-55mm utilizat ocazional",
+    "pret_minim": 1000,
+    "pret_maxim": 1800
+  },
+  {
+    "nume_produs": "Obiectiv foto Canon defect autofocus blocat lentila zgariata",
+    "pret_minim": 50,
+    "pret_maxim": 200
+  }
+]
