@@ -1,0 +1,57 @@
+name: .NET & React CI/CD (Cai Fixate)
+
+on:
+  push:
+    branches: [ "aster", "test_CI" ]
+  pull_request:
+    branches: [ "master", "test_CI" ]
+
+jobs:
+  # ==========================================
+  # 🖥️ JOB 1: BACKEND (.NET)
+  # ==========================================
+  backend-build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restaurare pachete NuGet
+      run: dotnet restore WebApplication1.sln
+
+    - name: Compilare Proiect Backend (Release)
+      run: dotnet build WebApplication1.sln --no-restore --configuration Release
+
+    - name: Rularea testelor unitare C#
+      run: dotnet test WebApplication1.sln --no-build --configuration Release --verbosity normal
+
+  ## ==========================================
+  # 🎨 JOB 2: FRONTEND (React)
+  # ==========================================
+  frontend-build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Instalare dependente React
+      run: |
+        cd netauction-react
+        npm install
+
+    # Am scos rularea testelor automate de browser care aveau nevoie de localhost pornit
+
+    - name: Verificare Build de Productie React
+      run: |
+        cd netauction-react
+        npm run build
