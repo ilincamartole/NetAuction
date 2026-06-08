@@ -58,7 +58,7 @@ jobs:
 
 ## JOB 3---CD
 
-deploy-to-render:
+  deploy-to-render:
     needs: [backend-build-test, frontend-build-test] # Pornim DOAR dacă testele de .NET și React au trecut cu succes!
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' # Trimitem live doar de pe master/main
