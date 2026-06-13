@@ -2,7 +2,7 @@ name: .NET & React CI/CD (Cai Fixate)
 
 on:
   push:
-    branches: [ "master", "test_CI", "test_CD", "render_deployment" ]
+    branches: [ "Master", "test_CI", "test_CD", "render_deployment" ]
   pull_request:
     branches: [ "master", "test_CI", "test_CD", "render_deployment" ]
 
