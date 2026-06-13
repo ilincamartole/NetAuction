@@ -21,7 +21,7 @@ namespace WebApplication1.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var acum = DateTime.UtcNow;
+                    var acum = DateTime.Now;
 
                     // 1. Căutăm licitațiile care au expirat dar nu sunt încă marcate ca "Încheiate"
                     var licitatiiExpirate = await context.Licitatii
