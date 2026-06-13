@@ -72,7 +72,7 @@ REGULĂ ABSOLUTĂ: Răspunde DOAR cu numărul întreg, fără niciun alt cuvânt
             if (string.IsNullOrEmpty(apiKey))
                 return StatusCode(500, "Cheia API Gemini nu a fost găsită în configurație (Google:GeminiApiKey).");
 
-            var acum = DateTime.Now;
+            var acum = DateTime.UtcNow;
             var licitatiiQuery = _context.Licitatii
                 .Where(l => l.Categorie == request.Categorie && !l.EsteIncheiata && l.data_finalizare > acum);
 

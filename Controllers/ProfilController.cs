@@ -60,7 +60,7 @@ namespace WebApplication1.Controllers
 
             if (!esteProfilPropriu)
             {
-                var acum = DateTime.Now;
+                var acum = DateTime.UtcNow;
                 licitatiiQuery = licitatiiQuery.Where(l => !l.EsteIncheiata && l.data_finalizare > acum);
             }
 

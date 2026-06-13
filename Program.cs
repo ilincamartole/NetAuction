@@ -301,7 +301,7 @@ using (var scope = app.Services.CreateScope())
                 prenume = "Admin",
                 adresa = "Adresa Generică Test",
                 balance = 0,
-                data_inregistrarii = DateTime.Now
+                data_inregistrarii = DateTime.UtcNow
             };
 
             var result = await userManager.CreateAsync(user, "ParolaTest123!");
