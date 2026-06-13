@@ -45,7 +45,7 @@ namespace WebApplication1.Controllers
             {
                 // Issue #14: Licitațiile expirate dispar din listingul public.
                 // Cumpărătorii care au licitat le pot vedea în DashboardCumparator.
-                var acum = DateTime.Now;
+                var acum = DateTime.UtcNow;
                 licitatiiQuery = licitatiiQuery.Where(l => !l.EsteIncheiata && l.data_finalizare > acum);
             }
 
@@ -94,7 +94,7 @@ namespace WebApplication1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("titlu,descriere,PretPornire,data_finalizare,Categorie")] Licitatie licitatie, IFormFile? fisierImagine)
         {
-            if (licitatie.data_finalizare <= DateTime.Now)
+            if (licitatie.data_finalizare <= DateTime.UtcNow)
                 ModelState.AddModelError("data_finalizare", "Data trebuie să fie în viitor.");
 
             ModelState.Remove("seller_id");
@@ -229,7 +229,7 @@ namespace WebApplication1.Controllers
 
             string userDepasitId = ultimaOferta?.userId;
 
-            if (licitatie.EsteIncheiata || licitatie.data_finalizare <= DateTime.Now)
+            if (licitatie.EsteIncheiata || licitatie.data_finalizare <= DateTime.UtcNow)
             {
                 TempData["Error"] = "Această licitație s-a încheiat.";
                 return RedirectToAction(nameof(Details), new { id });
@@ -251,7 +251,7 @@ namespace WebApplication1.Controllers
                 var bid = new Bid
                 {
                     suma = sumaLicitata,
-                    data = DateTime.Now,
+                    data = DateTime.UtcNow,
                     licitatieId = id,
                     userId = currentUserId
                 };

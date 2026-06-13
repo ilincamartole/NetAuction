@@ -42,7 +42,7 @@ namespace WebApplication1.Controllers
                 Comentariu = dto.Comentariu,
                 SellerId = dto.SellerId,
                 BuyerId = buyerId,
-                DataPublicarii = DateTime.Now
+                DataPublicarii = DateTime.UtcNow
             };
 
             _context.Reviews.Add(review);
