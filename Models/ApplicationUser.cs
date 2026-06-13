@@ -14,7 +14,7 @@ namespace WebApplication1.Models
         public decimal balance { get; set; }
         public String adresa { get; set; }
 
-        public DateTime data_inregistrarii { get; set; } = DateTime.Now;
+        public DateTime data_inregistrarii { get; set; } = DateTime.UtcNow;
 
         public ApplicationUser()
         {
