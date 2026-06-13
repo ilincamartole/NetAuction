@@ -162,14 +162,19 @@ builder.Services.AddControllersWithViews();
 // 2. Configurare Bază de Date (MODIFICAT PENTRU RENDER / POSTGRESQL)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    // Dacă rulează pe Render (link-ul începe cu postgres://)
-    if (connectionString != null && connectionString.StartsWith("postgresql://"))
+    if (!string.IsNullOrEmpty(connectionString) && (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://")))
     {
         var databaseUri = new Uri(connectionString);
         var userInfo = databaseUri.UserInfo.Split(':');
-        var npgsqlConnectionString = $"Host={databaseUri.Host};Port={databaseUri.Port};Username={userInfo[0]};Password={userInfo[1]};Database={databaseUri.LocalPath.TrimStart('/')};Pooling=true;SSL Mode=Require;Trust Server Certificate=true;";
+
+        // Extragem portul (dacă lipsește din link, folosim 5432 care e standard la Postgres)
+        var port = databaseUri.Port > 0 ? databaseUri.Port : 5432;
+
+        // Am scos "SSL Mode=Require" pentru a preveni eroarea 139 pe serverul de Linux
+        var npgsqlConnectionString = $"Host={databaseUri.Host};Port={port};Username={userInfo[0]};Password={userInfo[1]};Database={databaseUri.LocalPath.TrimStart('/')};Pooling=true;";
 
         options.UseNpgsql(npgsqlConnectionString);
     }
