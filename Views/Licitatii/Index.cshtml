@@ -181,7 +181,7 @@
                             </span>
                         </div>
 
-                        @if (item.data_finalizare < DateTime.Now.AddHours(2) && !item.EsteIncheiata)
+                        @if (item.data_finalizare < DateTime.UtcNow.AddHours(2) && !item.EsteIncheiata)
                         {
                             <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-danger text-white text-center small fw-bold animate__animated animate__pulse animate__infinite">
                                 <i class="bi bi-clock-history me-1"></i> EXPIRĂ CURÂND
