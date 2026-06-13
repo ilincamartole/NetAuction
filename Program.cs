@@ -165,7 +165,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     // Dacă rulează pe Render (link-ul începe cu postgres://)
-    if (connectionString != null && connectionString.StartsWith("postgres://"))
+    if (connectionString != null && connectionString.StartsWith("postgresql://"))
     {
         var databaseUri = new Uri(connectionString);
         var userInfo = databaseUri.UserInfo.Split(':');
