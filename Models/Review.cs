@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public int Nota { get; set; } // de la 1 la 5
         public string Comentariu { get; set; }
-        public DateTime DataPublicarii { get; set; } = DateTime.Now;
+        public DateTime DataPublicarii { get; set; } = DateTime.UtcNow;
 
         // Cine primește rating-ul (Vânzătorul)
         public string SellerId { get; set; }
