@@ -152,6 +152,7 @@ using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Services;
 using WebApplication1.Hubs;
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
