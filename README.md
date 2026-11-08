@@ -1,4 +1,4 @@
-#NetAuction: Our AI-Driven Dev Journey
+# NetAuction: Our AI-Driven Dev Journey
 
  For this project, our mission was clear: use as much AI as possible throughout the entire software development lifecycle—from the first line of implementation all the way through our CI/CD pipelines and cloud deployment. 
 
